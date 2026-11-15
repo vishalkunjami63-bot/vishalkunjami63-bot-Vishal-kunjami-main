@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SpeakEasy</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_learn">Learn</string>
+    <string name="nav_quiz">Quiz</string>
+    <string name="nav_profile">Profile</string>
+    <string name="app_tagline">Master English, Hindi &amp; Marathi</string>
+</resources>

@@ -1,0 +1,6 @@
+{
+  "name": "SpeakEasy",
+  "description": "Learn English, Hindi, and Marathi with interactive lessons, speaking practice, and daily quizzes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

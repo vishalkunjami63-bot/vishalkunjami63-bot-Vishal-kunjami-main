@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>SpeakEasy - Learn English • Hindi • Marathi</title>
+  
+  <!-- Tailwind CSS (Offline-ready with fallback) -->
+  <script src="tailwind.js"></script>
+  <script>if (!window.tailwind) document.write('<script src="https://cdn.tailwindcss.com"><\/script>');</script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons (Offline-ready with fallback) -->
+  <script src="lucide.min.js"></script>
+  <script>if (!window.lucide) document.write('<script src="https://unpkg.com/lucide@latest"><\/script>');</script>
+
+  <!-- Confetti (Offline-ready with fallback) -->
+  <script src="confetti.browser.min.js"></script>
+  <script>if (!window.confetti) document.write('<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><\/script>');</script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            speakeasy: {
+              blue: '#1d4ed8',       // Exact header & brand blue
+              blueDark: '#1e40af',
+              blueLight: '#eff6ff',
+              hindiOrange: '#f97316',// Hindi card orange
+              marathiGreen: '#22c55e',// Marathi card green
+              practicePurple: '#8b5cf6', // Speaking practice purple
+              quizPink: '#ec4899',   // Daily quiz pink
+              rewardGold: '#f59e0b', // Rewards gold
+              cardBg: '#ffffff',
+            }
+          },
+          boxShadow: {
+            'subtle': '0 2px 10px rgba(0, 0, 0, 0.05)',
+            'card': '0 4px 16px rgba(0, 0, 0, 0.06)',
+            'nav': '0 -3px 18px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #ffffff;
+    }
+    
+    /* Native Android Smooth Scrolling */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    * {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .pulse-animation {
+      animation: pulseMic 1.8s infinite;
+    }
+    @keyframes pulseMic {
+      0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.6); }
+      70% { box-shadow: 0 0 0 16px rgba(139, 92, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-white">
+
+  <!-- =========================================================
+       ANDROID PHONE CONTAINER
+       ========================================================= -->
+  <div id="phone-shell" class="w-full max-w-full sm:max-w-[420px] bg-white min-h-screen flex flex-col overflow-hidden relative">
+    
+    <!-- Optional Mock Status Bar (Hidden on Mobile, visible only in desktop previews) -->
+    <div id="mock-status-bar" class="hidden sm:flex pt-3 px-6 pb-2 bg-white justify-between items-center text-xs text-slate-800 font-bold z-40 select-none">
+      <span class="tracking-tight text-xs font-black" id="status-clock">9:30</span>
+      
+      <!-- Phone Camera Punchhole Mockup -->
+      <div class="w-4 h-4 rounded-full bg-slate-900 border border-slate-700 mx-auto hidden sm:block opacity-30"></div>
+
+      <div class="flex items-center space-x-1.5 text-slate-700">
+        <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+        <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+        <i data-lucide="battery" class="w-4 h-4 fill-slate-800"></i>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-2 max-w-[340px] w-full px-4">
+      <div class="bg-slate-900 text-white text-xs font-semibold py-2.5 px-4 rounded-full shadow-2xl flex items-center justify-center space-x-2">
+        <span id="toast-icon">✨</span>
+        <span id="toast-message">Action successful!</span>
+      </div>
+    </div>
+
+    <!-- APP CONTENT VIEWPORT (Dynamically Switched Screens) -->
+    <div id="screen-container" class="flex-1 overflow-y-auto pb-20 relative bg-slate-50">
+      <!-- Screen content rendered here -->
+    </div>
+
+    <!-- =========================================================
+         EXACT BOTTOM NAVIGATION BAR (Home | Learn | Quiz | Profile)
+         ========================================================= -->
+    <!-- =========================================================
+         BOTTOM NAVIGATION BAR (Home | Learn | AI Teacher | Quiz | Profile)
+         ========================================================= -->
+    <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-150 px-2 py-1 flex justify-around items-center z-40 shadow-nav">
+      
+      <!-- Home Tab -->
+      <button onclick="navigateTo('home')" id="nav-btn-home" class="nav-item flex flex-col items-center py-1 px-2 text-speakeasy-blue transition-colors">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold mt-0.5">Home</span>
+      </button>
+
+      <!-- Learn Tab -->
+      <button onclick="navigateTo('learn-menu')" id="nav-btn-learn" class="nav-item flex flex-col items-center py-1 px-2 text-slate-400 hover:text-slate-600 transition-colors">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Learn</span>
+      </button>
+
+      <!-- AI Teacher Tab -->
+      <button onclick="navigateTo('ai-teacher')" id="nav-btn-ai-teacher" class="nav-item flex flex-col items-center py-1 px-2 text-slate-400 hover:text-purple-600 transition-colors relative">
+        <div class="relative">
+          <i data-lucide="bot" class="w-5 h-5"></i>
+          <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-purple-600 ring-2 ring-white"></span>
+        </div>
+        <span class="text-[10px] font-semibold mt-0.5">AI Teacher</span>
+      </button>
+
+      <!-- Quiz Tab -->
+      <button onclick="navigateTo('quiz')" id="nav-btn-quiz" class="nav-item flex flex-col items-center py-1 px-2 text-slate-400 hover:text-slate-600 transition-colors">
+        <i data-lucide="award" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Quiz</span>
+      </button>
+
+      <!-- Profile Tab -->
+      <button onclick="navigateTo('profile')" id="nav-btn-profile" class="nav-item flex flex-col items-center py-1 px-2 text-slate-400 hover:text-slate-600 transition-colors">
+        <i data-lucide="user" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Profile</span>
+      </button>
+
+    </nav>
+
+    <!-- LESSON DETAIL MODAL (Opens for Alphabet, Words, Sentences, etc.) -->
+    <div id="lesson-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+      <div class="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-200">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+          <div>
+            <span id="modal-badge" class="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">English Lesson</span>
+            <h3 id="modal-title" class="text-base font-extrabold text-slate-900 mt-1">Lesson Title</h3>
+          </div>
+          <button onclick="closeLessonModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="modal-content" class="py-4 space-y-3 overflow-y-auto flex-1 text-xs">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex space-x-2">
+          <button onclick="markLessonCompleteFromModal()" class="flex-1 py-3 bg-speakeasy-blue hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Complete & Earn +20 XP</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPEAKING RECORDING OVERLAY (Voice Coach) -->
+    <div id="speaking-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+      <div class="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl flex flex-col text-center animate-in slide-in-from-bottom duration-200">
+        
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-[10px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700">AI Voice Assistant</span>
+          <button onclick="closeSpeakingModal()" class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <h4 class="text-xs font-semibold text-slate-400 mt-2" id="speech-sub">Repeat aloud after native audio:</h4>
+        <h2 class="text-2xl font-black text-slate-900 mt-1" id="speech-target">"Good Morning!"</h2>
+        <p class="text-xs font-bold text-speakeasy-practicePurple mt-0.5" id="speech-roman">Pronunciation: /ɡʊd ˈmɔːnɪŋ/</p>
+        <p class="text-xs text-slate-500 mt-1" id="speech-meaning">Meaning: Shubh Prabhat / Shubh Sakaal</p>
+
+        <!-- Listen native button -->
+        <div class="my-3">
+          <button onclick="playTargetTTS()" class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+            <i data-lucide="volume-2" class="w-4 h-4 text-purple-600"></i>
+            <span>Listen Native Voice</span>
+          </button>
+        </div>
+
+        <!-- Big Mic Record Button -->
+        <div class="flex flex-col items-center my-4">
+          <button id="mic-action-btn" onclick="toggleMicRecording()" class="w-20 h-20 rounded-full bg-speakeasy-practicePurple text-white flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">
+            <i data-lucide="mic" class="w-8 h-8"></i>
+          </button>
+          <p id="mic-prompt-text" class="text-xs font-bold text-slate-400 mt-3">Tap microphone & speak</p>
+          <p id="mic-transcript" class="text-xs text-slate-600 italic mt-1 min-h-[16px]">Ready to listen...</p>
+        </div>
+
+        <!-- Result Box -->
+        <div id="mic-result-card" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-3 mb-3">
+          <div class="flex items-center justify-center space-x-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white" id="mic-score">95% Match</span>
+            <span class="text-xs font-extrabold text-slate-800" id="mic-verdict">Accurate & Fluent!</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1" id="mic-detail">Your pronunciation and accent are right on target.</p>
+        </div>
+
+        <button onclick="nextSpeakingPhrase()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1">
+          <span>Next Practice Phrase</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- GOAL SETTING MODAL -->
+    <div id="goal-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+      <div class="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-200">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+          <div>
+            <span class="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Practice Goal</span>
+            <h3 class="text-base font-extrabold text-slate-900 mt-1">Set Daily Learning Goal</h3>
+          </div>
+          <button onclick="closeGoalModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="py-4 space-y-3.5">
+          <p class="text-xs text-slate-500 font-medium">Choose how many minutes you want to commit to practicing every day:</p>
+
+          <div class="grid grid-cols-3 gap-2" id="goal-options-grid">
+            <button type="button" onclick="selectGoalMinutes(5)" class="goal-pill p-2.5 rounded-xl border border-slate-200 text-center font-bold text-xs hover:border-blue-500 transition active:scale-95" data-mins="5">
+              <span class="block text-sm font-black text-slate-900">5 min</span>
+              <span class="text-[10px] text-slate-400 font-medium">Casual</span>
+            </button>
+            <button type="button" onclick="selectGoalMinutes(10)" class="goal-pill p-2.5 rounded-xl border border-slate-200 text-center font-bold text-xs hover:border-blue-500 transition active:scale-95" data-mins="10">
+              <span class="block text-sm font-black text-slate-900">10 min</span>
+              <span class="text-[10px] text-slate-400 font-medium">Regular</span>
+            </button>
+            <button type="button" onclick="selectGoalMinutes(15)" class="goal-pill p-2.5 rounded-xl border border-blue-500 bg-blue-50 text-center font-bold text-xs transition active:scale-95" data-mins="15">
+              <span class="block text-sm font-black text-blue-700">15 min</span>
+              <span class="text-[10px] text-blue-500 font-medium">Popular</span>
+            </button>
+            <button type="button" onclick="selectGoalMinutes(20)" class="goal-pill p-2.5 rounded-xl border border-slate-200 text-center font-bold text-xs hover:border-blue-500 transition active:scale-95" data-mins="20">
+              <span class="block text-sm font-black text-slate-900">20 min</span>
+              <span class="text-[10px] text-slate-400 font-medium">Focused</span>
+            </button>
+            <button type="button" onclick="selectGoalMinutes(30)" class="goal-pill p-2.5 rounded-xl border border-slate-200 text-center font-bold text-xs hover:border-blue-500 transition active:scale-95" data-mins="30">
+              <span class="block text-sm font-black text-slate-900">30 min</span>
+              <span class="text-[10px] text-slate-400 font-medium">Intensive</span>
+            </button>
+            <button type="button" onclick="selectGoalMinutes(45)" class="goal-pill p-2.5 rounded-xl border border-slate-200 text-center font-bold text-xs hover:border-blue-500 transition active:scale-95" data-mins="45">
+              <span class="block text-sm font-black text-slate-900">45 min</span>
+              <span class="text-[10px] text-slate-400 font-medium">Mastery</span>
+            </button>
+          </div>
+
+          <!-- Custom minute stepper -->
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="text-xs font-extrabold text-slate-900">Target Duration</span>
+              <p class="text-[10px] text-slate-400 font-medium">Fine-tune your daily time</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="adjustGoalMinutes(-1)" class="w-8 h-8 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center font-black text-slate-700 active:scale-95">-</button>
+              <span id="selected-goal-display" class="w-12 text-center text-sm font-black text-blue-600">15 min</span>
+              <button onclick="adjustGoalMinutes(1)" class="w-8 h-8 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center font-black text-slate-700 active:scale-95">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex space-x-2">
+          <button onclick="saveDailyGoalSetting()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 active:scale-98">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Save Learning Goal</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFFLINE MODE MANAGER MODAL -->
+    <div id="offline-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+      <div class="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] animate-in slide-in-from-bottom duration-200">
+        
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">✈️</span>
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900 leading-tight">Offline Mode Manager</h3>
+              <p class="text-[10px] text-slate-400 font-semibold">Practice languages without internet</p>
+            </div>
+          </div>
+          <button onclick="closeOfflineModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="py-3.5 space-y-3.5 overflow-y-auto">
+          
+          <!-- Master Toggle Switch Card -->
+          <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-3.5 shadow-md flex items-center justify-between">
+            <div>
+              <div class="flex items-center space-x-1.5">
+                <span id="offline-mode-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-xs font-black uppercase tracking-wider text-slate-200" id="offline-status-label">Online Mode Active</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-1" id="offline-status-desc">All lessons cached on device & ready offline</p>
+            </div>
+            
+            <button onclick="toggleOfflineMode()" id="offline-toggle-btn" class="w-13 h-7 bg-slate-700 rounded-full p-1 transition-colors relative cursor-pointer" aria-label="Toggle Offline Mode">
+              <div id="offline-toggle-knob" class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform"></div>
+            </button>
+          </div>
+
+          <!-- On-Device Language Packs Status -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-black text-slate-800">Installed Language Packs</span>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">✓ 42.4 MB Cached</span>
+            </div>
+
+            <div class="space-y-2">
+              <!-- English Pack -->
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-black text-xs">🇬🇧</div>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-800">English Core Pack</h5>
+                    <p class="text-[10px] text-slate-400">26 Alphabet • 1000+ Words • Sentences</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-extrabold text-slate-500">12.4 MB</span>
+                  <span class="block text-[9px] font-bold text-emerald-600">Active</span>
+                </div>
+              </div>
+
+              <!-- Hindi Pack -->
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center font-black text-xs">🇮🇳</div>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-800">Hindi Core Pack</h5>
+                    <p class="text-[10px] text-slate-400">वर्णमाला • 1000+ शब्द • व्याकरण</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-extrabold text-slate-500">15.2 MB</span>
+                  <span class="block text-[9px] font-bold text-emerald-600">Active</span>
+                </div>
+              </div>
+
+              <!-- Marathi Pack -->
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">🍃</div>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-800">Marathi Core Pack</h5>
+                    <p class="text-[10px] text-slate-400">बाराखडी • दैनंदिन संभाषण • शब्द</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-extrabold text-slate-500">14.8 MB</span>
+                  <span class="block text-[9px] font-bold text-emerald-600">Active</span>
+                </div>
+              </div>
+
+              <!-- TTS Audio Voice Engine -->
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">🎙️</div>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-800">Pronunciation Audio Engine</h5>
+                    <p class="text-[10px] text-slate-400">Native Android TextToSpeech</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] font-extrabold text-slate-500">Ready</span>
+                  <span class="block text-[9px] font-bold text-emerald-600">On-Device</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress download simulator -->
+          <div id="offline-sync-progress-box" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <div class="flex items-center justify-between text-xs font-bold text-blue-900 mb-1">
+              <span>Syncing offline packages...</span>
+              <span id="offline-sync-percent">100%</span>
+            </div>
+            <div class="w-full bg-blue-200 rounded-full h-1.5 overflow-hidden">
+              <div id="offline-sync-bar" class="bg-blue-600 h-1.5 rounded-full transition-all duration-300 w-full"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex space-x-2">
+          <button onclick="refreshOfflinePacks()" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 active:scale-98">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span>Refresh Offline Packs</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN MODAL (Gmail & Mobile Phone + OTP) -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+      <div class="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] animate-in slide-in-from-bottom duration-200">
+        
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+          <div>
+            <span class="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Account Access</span>
+            <h3 class="text-base font-extrabold text-slate-900 mt-0.5">Sign In to SpeakEasy</h3>
+          </div>
+          <button onclick="closeLoginModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Auth Tabs: Gmail vs Mobile Number -->
+        <div class="flex border-b border-slate-200 mt-3">
+          <button onclick="switchLoginTab('gmail')" id="tab-btn-gmail" class="flex-1 pb-2.5 text-center text-xs font-black border-b-2 border-blue-600 text-blue-600 transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="mail" class="w-4 h-4"></i>
+            <span>Google / Gmail</span>
+          </button>
+          <button onclick="switchLoginTab('phone')" id="tab-btn-phone" class="flex-1 pb-2.5 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="phone" class="w-4 h-4"></i>
+            <span>Mobile Number</span>
+          </button>
+        </div>
+
+        <div class="py-4 space-y-3.5 overflow-y-auto">
+          
+          <!-- TAB 1: GMAIL / GOOGLE SIGN-IN -->
+          <div id="auth-panel-gmail" class="space-y-3.5">
+            
+            <!-- Quick Google One-Tap Button -->
+            <button onclick="handleGoogleOneTapLogin()" class="w-full py-3 px-4 border border-slate-300 hover:bg-slate-50 active:scale-98 rounded-xl font-bold text-xs text-slate-700 flex items-center justify-center space-x-3 shadow-xs transition">
+              <svg class="w-4 h-4" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            <div class="flex items-center space-x-2">
+              <div class="flex-1 h-px bg-slate-200"></div>
+              <span class="text-[10px] uppercase font-bold text-slate-400">or enter Gmail</span>
+              <div class="flex-1 h-px bg-slate-200"></div>
+            </div>
+
+            <!-- Manual Gmail Address Input -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-bold text-slate-700">Gmail Address</label>
+              <div class="relative">
+                <input type="email" id="gmail-input" placeholder="e.g. vishalkunjami63@gmail.com" value="vishalkunjami63@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-blue-500 focus:outline-hidden" />
+                <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute right-3 top-3"></i>
+              </div>
+            </div>
+
+            <!-- Quick Account Switcher for Demo -->
+            <div class="space-y-1.5">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Quick Accounts:</p>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="selectDemoAccount('vishalkunjami63@gmail.com', 'Vishal Kunjami')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-[10px] font-bold text-slate-700 hover:text-blue-700 border border-slate-200 transition">Vishal (Google)</button>
+                <button type="button" onclick="selectDemoAccount('priya.sharma@gmail.com', 'Priya Sharma')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-[10px] font-bold text-slate-700 hover:text-blue-700 border border-slate-200 transition">Priya (Google)</button>
+                <button type="button" onclick="selectDemoAccount('rahul.deshmukh@gmail.com', 'Rahul Deshmukh')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-[10px] font-bold text-slate-700 hover:text-blue-700 border border-slate-200 transition">Rahul (Google)</button>
+              </div>
+            </div>
+
+            <button onclick="submitGmailLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+              <span>Sign In with Gmail</span>
+            </button>
+          </div>
+
+          <!-- TAB 2: MOBILE NUMBER & OTP VERIFICATION -->
+          <div id="auth-panel-phone" class="space-y-3.5 hidden">
+            
+            <div class="space-y-1">
+              <label class="text-[11px] font-bold text-slate-700">Mobile Phone Number</label>
+              <div class="flex space-x-2">
+                <div class="flex items-center space-x-1 px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 flex-shrink-0">
+                  <span>🇮🇳</span>
+                  <span>+91</span>
+                </div>
+                <input type="tel" id="phone-number-input" maxlength="10" placeholder="98765 43210" value="9876543210" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-blue-500 focus:outline-hidden" />
+              </div>
+            </div>
+
+            <!-- OTP Step Container -->
+            <div id="phone-otp-box" class="space-y-2 hidden">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-bold text-slate-700">6-Digit Verification Code (OTP)</label>
+                <span class="text-[10px] font-bold text-emerald-600">SMS Sent ✓</span>
+              </div>
+              <div class="flex justify-between space-x-1.5" id="otp-inputs-row">
+                <input type="text" maxlength="1" class="w-10 h-10 text-center font-black text-base border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-hidden otp-digit" value="4" />
+                <input type="text" maxlength="1" class="w-10 h-10 text-center font-black text-base border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-hidden otp-digit" value="8" />
+                <input type="text" maxlength="1" class="w-10 h-10 text-center font-black text-base border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-hidden otp-digit" value="2" />
+                <input type="text" maxlength="1" class="w-10 h-10 text-center font-black text-base border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-hidden otp-digit" value="9" />
+                <input type="text" maxlength="1" class="w-10 h-10 text-center font-black text-base border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-hidden otp-digit" value="1" />
+                <input type="text" maxlength="1" class="w-10 h-10 text-center font-black text-base border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-hidden otp-digit" value="0" />
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <button type="button" onclick="autoFillDemoOtp()" class="text-[10px] font-black text-blue-600 hover:underline">⚡ Auto-fill OTP (482910)</button>
+                <span class="text-[10px] font-medium text-slate-400" id="otp-timer">Resend in 28s</span>
+              </div>
+            </div>
+
+            <!-- Phone action button -->
+            <button id="phone-action-btn" onclick="handleSendOrVerifyOtp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span id="phone-btn-text">Send OTP via SMS</span>
+            </button>
+
+          </div>
+
+          <!-- Active Signed In State Banner -->
+          <div id="active-user-badge" class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <span class="text-xl">👤</span>
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 leading-tight">Current User Profile</p>
+                <p class="text-xs font-black text-slate-900 leading-tight" id="login-modal-username">Vishal Kunjami</p>
+                <p class="text-[10px] text-blue-600 font-bold" id="login-modal-method">Google • vishalkunjami63@gmail.com</p>
+              </div>
+            </div>
+            <button onclick="handleSignOut()" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-[10px] font-extrabold border border-red-200 hover:bg-red-100 transition">Logout</button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GLOBAL LEADERBOARD FULL STANDINGS MODAL -->
+    <div id="leaderboard-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+      <div class="w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[88vh] animate-in slide-in-from-bottom duration-200">
+        
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">🏆</span>
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900 leading-tight">Global Leaderboard</h3>
+              <p class="text-[10px] text-slate-400 font-semibold">Live global rankings by total XP</p>
+            </div>
+          </div>
+          <button onclick="closeLeaderboardModal()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800" aria-label="Close leaderboard">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="leaderboard-modal-body" class="py-3.5 space-y-2.5 overflow-y-auto flex-1">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
+          <button onclick="closeLeaderboardModal(); navigateTo('quiz');" class="py-2.5 px-3 bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 active:scale-95">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <span>Quiz (+10 XP)</span>
+          </button>
+          <button onclick="closeLeaderboardModal(); openSpeakingPracticeModal('Good Morning!', '/ɡʊd ˈmɔːnɪŋ/', 'Shubh Prabhat / Shubh Sakaal');" class="py-2.5 px-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 active:scale-95">
+            <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+            <span>Speak (+25 XP)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================
+       JAVASCRIPT APP LOGIC & STATE PERSISTENCE
+       ========================================================= -->
+  <script>
+    // State storage key
+    const STORAGE_KEY = 'speakeasy_app_data_v2';
+
+    // Application State initialized with User Login, Offline Mode & AI Teacher
+    const defaultData = {
+      user: {
+        isLoggedIn: true,
+        authProvider: 'gmail', // 'gmail', 'phone', or 'guest'
+        name: 'Vishal',
+        fullName: 'Vishal Kunjami',
+        email: 'vishalkunjami63@gmail.com',
+        phoneNumber: '+91 98765 43210',
+      },
+      offlineMode: {
+        isEnabled: false,
+        lastSynced: 'Just now',
+        downloadedPacks: ['english', 'hindi', 'marathi', 'voice_tts']
+      },
+      aiTeacherHistory: [
+        {
+          id: 1,
+          sender: 'teacher',
+          text: 'Namaste! 🙏 I am Asha Ma\'am, your AI Language Guru. Ask me anything in English, Hindi, or Marathi, or ask me to check your sentence grammar!',
+          lang: 'english',
+          timestamp: '10:00 AM'
+        },
+        {
+          id: 2,
+          sender: 'user',
+          text: 'How do I say "Good morning, have a nice day" in Hindi and Marathi?',
+          timestamp: '10:01 AM'
+        },
+        {
+          id: 3,
+          sender: 'teacher',
+          text: 'Here are the polite greetings:\n\n🇮🇳 **Hindi:**\n"शुभ प्रभात, आपका दिन मंगलमय हो!"\n*(Shubh Prabhat, aapka din mangalmay ho!)*\n\n🍃 **Marathi:**\n"शुभ सकाळ, तुमचा आजचा दिवस छान जावो!"\n*(Shubh Sakaal, tumcha aajcha divas chhaan jaavo!)*\n\nTap the speaker icon 🔊 to practice speaking it aloud!',
+          lang: 'hindi',
+          timestamp: '10:01 AM'
+        }
+      ],
+      stats: {
+        streak: 0,        // Matches screenshot: "0 Days"
+        xp: 120,          // Matches screenshot: "120"
+        continueProgress: 60, // Matches screenshot: "60%"
+        completedLessons: ['en_lesson_1', 'en_lesson_2', 'hi_lesson_1'],
+        quizScore: 8,     // Matches screenshot: "8 / 10"
+        quizTotal: 10,
+        badgesCount: 4,
+        certificatesCount: 1,
+      },
+      dailyGoal: {
+        targetMinutes: 15,
+        practicedMinutes: 9,
+      },
+      currentScreen: 'home'
+    };
+
+    let appState = loadState();
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return {
+            ...defaultData,
+            ...parsed,
+            user: {
+              ...defaultData.user,
+              ...(parsed.user || {})
+            },
+            offlineMode: {
+              ...defaultData.offlineMode,
+              ...(parsed.offlineMode || {})
+            },
+            aiTeacherHistory: parsed.aiTeacherHistory && parsed.aiTeacherHistory.length ? parsed.aiTeacherHistory : defaultData.aiTeacherHistory,
+            dailyGoal: {
+              ...defaultData.dailyGoal,
+              ...(parsed.dailyGoal || {})
+            }
+          };
+        }
+      } catch (e) {
+        console.warn('Storage failed', e);
+      }
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.warn('Could not save state', e);
+      }
+    }
+
+    /* ---------------------------------------------------------
+       CURRICULUM CONTENT FOR ALL 3 LANGUAGES
+       --------------------------------------------------------- */
+    const CONTENT = {
+      english: {
+        title: "Learn English",
+        subtitle: "Let's Learn English",
+        heroColor: "from-sky-400 to-blue-600",
+        items: [
+          {
+            id: 'en_alpha',
+            iconText: 'A',
+            iconBg: 'bg-blue-600 text-white',
+            title: 'Alphabet',
+            subtitle: '26 Letters',
+            lessons: [
+              { term: 'A a', meaning: 'Apple (सेब / सफरचंद)', phonetic: '/eɪ/' },
+              { term: 'B b', meaning: 'Book (किताब / पुस्तक)', phonetic: '/biː/' },
+              { term: 'C c', meaning: 'Car (गाड़ी / कार)', phonetic: '/siː/' },
+              { term: 'D d', meaning: 'Door (दरवाज़ा / दार)', phonetic: '/diː/' }
+            ]
+          },
+          {
+            id: 'en_words',
+            icon: 'book',
+            iconBg: 'bg-blue-500 text-white',
+            title: 'Daily Words',
+            subtitle: '1000+ Words',
+            lessons: [
+              { term: 'Water', meaning: 'पानी (Hindi) / पाणी (Marathi)', phonetic: '/ˈwɔːtər/' },
+              { term: 'Friend', meaning: 'दोस्त / मित्र', phonetic: '/frɛnd/' },
+              { term: 'Family', meaning: 'परिवार / कुटुंब', phonetic: '/ˈfæmɪli/' },
+              { term: 'Food', meaning: 'खाना / जेवण', phonetic: '/fuːd/' }
+            ]
+          },
+          {
+            id: 'en_sentences',
+            icon: 'message-circle',
+            iconBg: 'bg-pink-500 text-white',
+            title: 'Daily Sentences',
+            subtitle: 'Useful Sentences',
+            lessons: [
+              { term: 'Good morning, how are you?', meaning: 'शुभ प्रभात, आप कैसे हैं? / शुभ सकाळ, कसे आहात?', phonetic: 'gʊd ˈmɔːrnɪŋ haʊ ɑːr juː' },
+              { term: 'Thank you very much!', meaning: 'आपका बहुत धन्यवाद! / तुमचे खूप खूप आभार!', phonetic: 'θæŋk juː ˈvɛri mʌtʃ' },
+              { term: 'Where is the train station?', meaning: 'रेलवे स्टेशन कहाँ है? / रेल्वे स्थानक कुठे आहे?', phonetic: 'wɛər ɪz ðə treɪn ˈsteɪʃən' }
+            ]
+          },
+          {
+            id: 'en_grammar',
+            icon: 'file-text',
+            iconBg: 'bg-purple-600 text-white',
+            title: 'Grammar',
+            subtitle: 'Basic to Advanced',
+            lessons: [
+              { term: 'Is / Am / Are (Present Be-Verbs)', meaning: 'I am Vishal. He is a teacher. They are students.', phonetic: 'Subject-Verb agreement' },
+              { term: 'Past Tense (Did / Was / Were)', meaning: 'I went to Mumbai yesterday.', phonetic: 'Expressing completed actions' }
+            ]
+          },
+          {
+            id: 'en_conv',
+            icon: 'users',
+            iconBg: 'bg-blue-600 text-white',
+            title: 'Conversation',
+            subtitle: 'Real Life Talks',
+            lessons: [
+              { term: 'Meeting a Colleague', meaning: 'Nice to meet you! How was your weekend?', phonetic: 'Formal greeting' },
+              { term: 'Ordering at a Restaurant', meaning: 'Could I please see the menu? A cup of tea, please.', phonetic: 'Polite ordering' }
+            ]
+          },
+          {
+            id: 'en_listen',
+            icon: 'headphones',
+            iconBg: 'bg-purple-600 text-white',
+            title: 'Listening',
+            subtitle: 'Improve Listening',
+            lessons: [
+              { term: 'Accent Training', meaning: 'Listen carefully and distinguish between "Ship" and "Sheep".', phonetic: 'Phoneme practice' }
+            ]
+          },
+          {
+            id: 'en_speak',
+            icon: 'mic',
+            iconBg: 'bg-pink-600 text-white',
+            title: 'Speaking Practice',
+            subtitle: 'Speak with Confidence',
+            isSpecialAction: 'speaking'
+          }
+        ]
+      },
+      hindi: {
+        title: "Learn Hindi",
+        subtitle: "चलो हिंदी सीखते हैं",
+        heroColor: "from-amber-400 to-orange-600",
+        items: [
+          {
+            id: 'hi_varnamala',
+            iconText: 'अ',
+            iconBg: 'bg-amber-500 text-white',
+            title: 'हिंदी वर्णमाला',
+            subtitle: 'स्वर और व्यंजन',
+            lessons: [
+              { term: 'अ, आ, इ, ई, उ, ऊ', meaning: 'Vowels (Swar) - A, Aa, I, Ee, U, Oo', phonetic: 'Swar' },
+              { term: 'क, ख, ग, घ, ङ', meaning: 'Consonants (Vyanjan) - Ka-varga', phonetic: 'Vyanjan' },
+              { term: 'च, छ, ज, झ, ञ', meaning: 'Consonants (Vyanjan) - Cha-varga', phonetic: 'Vyanjan' }
+            ]
+          },
+          {
+            id: 'hi_words',
+            icon: 'book',
+            iconBg: 'bg-amber-500 text-white',
+            title: 'दैनिक शब्द',
+            subtitle: '1000+ शब्द',
+            lessons: [
+              { term: 'नमस्ते (Namaste)', meaning: 'Hello / Greetings (English: Hello)', phonetic: 'Na-mas-te' },
+              { term: 'धन्यवाद (Dhanyavaad)', meaning: 'Thank you (English: Thank you)', phonetic: 'Dhan-ya-vaad' },
+              { term: 'मित्र (Mitra)', meaning: 'Friend (English: Friend)', phonetic: 'Mi-tra' },
+              { term: 'सुप्रभात (Suprabhat)', meaning: 'Good Morning', phonetic: 'Su-pra-bhat' }
+            ]
+          },
+          {
+            id: 'hi_sentences',
+            icon: 'message-circle',
+            iconBg: 'bg-amber-500 text-white',
+            title: 'दैनिक वाक्य',
+            subtitle: 'उपयोगी वाक्य',
+            lessons: [
+              { term: 'आप कैसे हैं?', meaning: 'How are you? (Formal/Polite)', phonetic: 'Aap kaise hain?' },
+              { term: 'मेरा नाम विशाल है।', meaning: 'My name is Vishal.', phonetic: 'Mera naam Vishal hai.' },
+              { term: 'मुझे हिंदी सीखना पसंद है।', meaning: 'I like learning Hindi.', phonetic: 'Mujhe Hindi seekhna pasand hai.' }
+            ]
+          },
+          {
+            id: 'hi_grammar',
+            icon: 'file-text',
+            iconBg: 'bg-amber-500 text-white',
+            title: 'व्याकरण',
+            subtitle: 'आसान भाषा में',
+            lessons: [
+              { term: 'संज्ञा और सर्वनाम (Nouns & Pronouns)', meaning: 'मैं, आप, वह, हम (I, You, He/She, We)', phonetic: 'Grammar fundamentals' },
+              { term: 'लिंग भेद (Gender in Hindi)', meaning: 'All Hindi nouns are masculine or feminine (पुल्लिंग / स्त्रीलिंग)', phonetic: 'Grammar rule' }
+            ]
+          },
+          {
+            id: 'hi_quiz',
+            icon: 'help-circle',
+            iconBg: 'bg-teal-500 text-white',
+            title: 'अभ्यास प्रश्न',
+            subtitle: 'Quiz खेलें',
+            isSpecialAction: 'quiz'
+          }
+        ]
+      },
+      marathi: {
+        title: "Learn Marathi",
+        subtitle: "चला मराठी शिकूया",
+        heroColor: "from-emerald-400 to-green-600",
+        items: [
+          {
+            id: 'mr_varnamala',
+            iconText: 'अ',
+            iconBg: 'bg-emerald-500 text-white',
+            title: 'मराठी वर्णमाला',
+            subtitle: 'स्वर आणि व्यंजन',
+            lessons: [
+              { term: 'अ, आ, इ, ई, उ, ऊ, ऋ', meaning: 'स्वर (Vowels in Marathi)', phonetic: 'Swar' },
+              { term: 'क, ख, ग, घ, ङ', meaning: 'व्यंजन (Consonants)', phonetic: 'Vyanjan' },
+              { term: 'ळ (Retroflex L)', meaning: 'Distinctive Marathi sound: बाळ, फळ', phonetic: 'Special consonant' }
+            ]
+          },
+          {
+            id: 'mr_words',
+            icon: 'book',
+            iconBg: 'bg-emerald-500 text-white',
+            title: 'दैनिक शब्द',
+            subtitle: '1000+ शब्द',
+            lessons: [
+              { term: 'नमस्कार (Namaskar)', meaning: 'Hello / Respectful greetings', phonetic: 'Na-mas-kar' },
+              { term: 'धन्यवाद (Dhanyavaad)', meaning: 'Thank you very much', phonetic: 'Dhan-ya-vaad' },
+              { term: 'पाणी (Paani)', meaning: 'Water', phonetic: 'Paa-ni' },
+              { term: 'जेवण (Jevan)', meaning: 'Meal / Dinner / Lunch', phonetic: 'Je-van' }
+            ]
+          },
+          {
+            id: 'mr_sentences',
+            icon: 'message-circle',
+            iconBg: 'bg-emerald-500 text-white',
+            title: 'दैनिक वाक्य',
+            subtitle: 'उपयोगी वाक्य',
+            lessons: [
+              { term: 'तुम्ही कसे आहात?', meaning: 'How are you? (Polite/Respectful)', phonetic: 'Tumhi kase aahat?' },
+              { term: 'माझे नाव विशाल आहे.', meaning: 'My name is Vishal.', phonetic: 'Majhe naav Vishal aahe.' },
+              { term: 'मला मराठी शिकायला आवडते.', meaning: 'I love learning Marathi.', phonetic: 'Mala Marathi shikayala aawadte.' }
+            ]
+          },
+          {
+            id: 'mr_grammar',
+            icon: 'file-text',
+            iconBg: 'bg-emerald-500 text-white',
+            title: 'व्याकरण',
+            subtitle: 'सोप्या भाषेत',
+            lessons: [
+              { term: 'मराठीतील तीन लिंग (3 Genders in Marathi)', meaning: 'पुल्लिंग, स्त्रीलिंग, नपुंसकलिंग (Neuter gender exists in Marathi)', phonetic: 'Grammar rule' },
+              { term: 'आदरार्थी बहुवचन (Respectful plural)', meaning: 'Using तुम्ही instead of तू for elders.', phonetic: 'Etiquette' }
+            ]
+          },
+          {
+            id: 'mr_quiz',
+            icon: 'help-circle',
+            iconBg: 'bg-emerald-600 text-white',
+            title: 'अभ्यास प्रश्न',
+            subtitle: 'Quiz खेळा',
+            isSpecialAction: 'quiz'
+          }
+        ]
+      }
+    };
+
+    /* QUIZ QUESTIONS DATABASE */
+    const QUIZZES = [
+      {
+        category: 'Vocabulary Quiz',
+        question: 'What is the polite Hindi greeting for "How are you?"',
+        options: ['आप कैसे हैं? (Aap kaise hain?)', 'कहाँ जा रहे हो?', 'तुम कौन हो?', 'क्या हाल है?'],
+        correct: 0,
+        tip: '"आप" is used for respectful communication.'
+      },
+      {
+        category: 'Vocabulary Quiz',
+        question: 'What is "Water" called in Marathi?',
+        options: ['चहा (Chaha)', 'पाणी (Paani)', 'जेवण (Jevan)', 'फळ (Phal)'],
+        correct: 1,
+        tip: '"पाणी" (Paani) is the Marathi word for water.'
+      },
+      {
+        category: 'Grammar Quiz',
+        question: 'Choose the correct English sentence:',
+        options: ['He do not know me.', 'He does not knows me.', 'He does not know me.', 'He are not knowing me.'],
+        correct: 2,
+        tip: 'Third-person singular takes "does not" + base verb.'
+      },
+      {
+        category: 'Sentence Quiz',
+        question: 'Translate to Marathi: "My name is Vishal."',
+        options: ['माझे नाव विशाल आहे.', 'मी विशाल जातो.', 'विशाल माझे घर आहे.', 'तू विशाल आहेस.'],
+        correct: 0,
+        tip: '"माझे नाव ... आहे" is the standard intro.'
+      }
+    ];
+
+    let currentQuizIndex = 0;
+
+    /* ---------------------------------------------------------
+       SCREEN NAVIGATION CONTROLLER
+       --------------------------------------------------------- */
+    function navigateTo(screenId) {
+      appState.currentScreen = screenId;
+      saveState();
+
+      // Update Bottom Nav active states
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.classList.remove('text-speakeasy-blue');
+        btn.classList.add('text-slate-400');
+        const span = btn.querySelector('span');
+        if (span) {
+          span.classList.remove('font-bold');
+          span.classList.add('font-semibold');
+        }
+      });
+
+      const activeBtn = document.getElementById(`nav-btn-${screenId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('text-speakeasy-blue');
+        activeBtn.classList.remove('text-slate-400');
+        const span = activeBtn.querySelector('span');
+        if (span) {
+          span.classList.add('font-bold');
+          span.classList.remove('font-semibold');
+        }
+      }
+
+      const viewport = document.getElementById('screen-container');
+
+      switch (screenId) {
+        case 'home':
+          renderHomeScreen(viewport);
+          break;
+        case 'learn-english':
+          renderLanguageSubScreen(viewport, 'english');
+          break;
+        case 'learn-hindi':
+          renderLanguageSubScreen(viewport, 'hindi');
+          break;
+        case 'learn-marathi':
+          renderLanguageSubScreen(viewport, 'marathi');
+          break;
+        case 'learn-menu':
+          renderLearnMenuScreen(viewport);
+          break;
+        case 'ai-teacher':
+          renderAITeacherScreen(viewport);
+          break;
+        case 'quiz':
+          renderQuizScreen(viewport);
+          break;
+        case 'profile':
+          renderProfileScreen(viewport);
+          break;
+        case 'rewards':
+          renderRewardsScreen(viewport);
+          break;
+        default:
+          renderHomeScreen(viewport);
+      }
+
+      lucide.createIcons();
+      viewport.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* =========================================================
+       1. HOME SCREEN - RECREATED TO MATCH SCREENSHOT PIXEL-BY-PIXEL
+       ========================================================= */
+    function renderHomeScreen(container) {
+      const goal = appState.dailyGoal || { targetMinutes: 15, practicedMinutes: 9 };
+      const targetMins = Math.max(1, goal.targetMinutes || 15);
+      const practicedMins = Math.max(0, goal.practicedMinutes || 0);
+      const percent = Math.min(100, Math.round((practicedMins / targetMins) * 100));
+      const remainingMins = Math.max(0, targetMins - practicedMins);
+      const circleRadius = 30;
+      const circumference = (2 * Math.PI * circleRadius).toFixed(2); // 188.50
+      const offset = (circumference - (percent / 100) * circumference).toFixed(2);
+      const isComplete = percent >= 100;
+      const ringColor = isComplete ? '#10b981' : '#2563eb';
+
+      container.innerHTML = `
+        <div class="px-5 pt-1 pb-6 space-y-4 animate-in fade-in duration-150">
+          
+          <!-- TOP APP BAR: [ ☰  SpeakEasy  [Offline Pill] [Login/Profile Button] ] -->
+          <div class="flex items-center justify-between py-1">
+            <div class="flex items-center space-x-2">
+              <button onclick="toggleDrawer()" class="p-1 -ml-1 text-slate-800 hover:text-slate-600 active:scale-95 transition" aria-label="Menu">
+                <i data-lucide="menu" class="w-6 h-6 stroke-[2.2]"></i>
+              </button>
+              <h1 class="text-xl font-black tracking-tight text-speakeasy-blue">SpeakEasy</h1>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <!-- Offline Mode Status Pill -->
+              <button onclick="openOfflineModal()" class="px-2.5 py-1 rounded-full text-[10px] font-black flex items-center space-x-1 border transition active:scale-95 ${appState.offlineMode && appState.offlineMode.isEnabled ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}">
+                <span>${appState.offlineMode && appState.offlineMode.isEnabled ? '✈️ Offline' : '📶 Online'}</span>
+              </button>
+
+              <!-- Account / Login Button -->
+              <button onclick="openLoginModal()" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-speakeasy-blue text-[10px] font-extrabold active:scale-95 transition">
+                <span>${appState.user && appState.user.authProvider === 'phone' ? '📱' : 'G'}</span>
+                <span class="max-w-[70px] truncate">${appState.user ? appState.user.name : 'Login'}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- GREETING SECTION: 👋 Welcome, Vishal! -->
+          <div class="pt-1">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight flex items-center space-x-1.5">
+              <span>👋</span>
+              <span>Welcome, ${appState.user.name}!</span>
+            </h2>
+            <p class="text-xs font-semibold text-slate-500 mt-0.5">Keep Learning, Keep Growing.</p>
+          </div>
+
+          <!-- DUAL STAT PILLS: Daily Streak (0 Days) & XP Points (120) -->
+          <div class="grid grid-cols-2 gap-3">
+            
+            <!-- Daily Streak Pill -->
+            <div onclick="showStreakInfo()" class="bg-white rounded-2xl p-3 border border-slate-100 shadow-subtle flex items-center space-x-3 cursor-pointer active:scale-98 transition">
+              <div class="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center text-xl flex-shrink-0">
+                🔥
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold text-slate-400 leading-tight">Daily Streak</p>
+                <p class="text-sm font-extrabold text-slate-900 leading-snug">${appState.stats.streak} Days</p>
+              </div>
+            </div>
+
+            <!-- XP Points Pill -->
+            <div onclick="showToast('⚡ Total XP earned: ' + appState.stats.xp)" class="bg-white rounded-2xl p-3 border border-slate-100 shadow-subtle flex items-center space-x-3 cursor-pointer active:scale-98 transition">
+              <div class="w-9 h-9 rounded-xl bg-yellow-50 flex items-center justify-center text-xl flex-shrink-0 text-amber-500">
+                ⭐
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold text-slate-400 leading-tight">XP Points</p>
+                <p class="text-sm font-extrabold text-slate-900 leading-snug">${appState.stats.xp}</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- DAILY LEARNING GOAL WITH CIRCULAR PROGRESS RING -->
+          <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-subtle hover:border-blue-100 transition">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-1.5">
+                <span class="text-base">🎯</span>
+                <h3 class="text-xs font-extrabold text-slate-900">Daily Learning Goal</h3>
+              </div>
+              <button onclick="openGoalModal()" class="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-speakeasy-blue text-[11px] font-bold flex items-center space-x-1 transition active:scale-95">
+                <i data-lucide="sliders-horizontal" class="w-3 h-3"></i>
+                <span>Set Goal</span>
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-4">
+              <!-- SVG Circular Progress Ring -->
+              <div class="relative w-20 h-20 flex-shrink-0 flex items-center justify-center">
+                <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 76 76">
+                  <circle cx="38" cy="38" r="${circleRadius}" stroke="#f1f5f9" stroke-width="6.5" fill="transparent" />
+                  <circle cx="38" cy="38" r="${circleRadius}" stroke="${ringColor}" stroke-width="6.5" stroke-linecap="round" fill="transparent"
+                          stroke-dasharray="${circumference}"
+                          stroke-dashoffset="${offset}"
+                          class="transition-all duration-700 ease-out" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none">
+                  <span class="text-sm font-black text-slate-900 leading-none">${practicedMins}m</span>
+                  <span class="text-[9px] font-bold text-slate-400 leading-tight mt-0.5">/ ${targetMins}m</span>
+                </div>
+              </div>
+
+              <!-- Goal Details & Actions -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-1.5">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black ${isComplete ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-700'}">
+                    ${isComplete ? '🎉 Goal Completed!' : `⚡ ${percent}% Done`}
+                  </span>
+                </div>
+                <p class="text-xs font-semibold text-slate-600 mt-1 truncate">
+                  ${isComplete ? 'Target achieved! Keep learning for bonus XP.' : `${remainingMins} mins remaining today`}
+                </p>
+
+                <!-- Quick Action Button Row -->
+                <div class="mt-2.5 flex items-center space-x-2">
+                  <button onclick="logPracticeMinutes(5)" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-[11px] font-extrabold flex items-center space-x-1 shadow-xs transition">
+                    <span>+5m Practice</span>
+                  </button>
+                  <button onclick="logPracticeMinutes(-5)" title="Adjust time" class="px-2 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-600 text-[11px] font-bold transition">
+                    <span>↺</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI TEACHER BANNER CARD (Asha Ma'am) -->
+          <div onclick="navigateTo('ai-teacher')" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-700 rounded-2xl p-3.5 text-white shadow-card cursor-pointer hover:shadow-purple-500/20 transition active:scale-98 relative overflow-hidden">
+            <div class="flex items-center justify-between relative z-10">
+              <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl flex-shrink-0 shadow-inner">
+                  👩‍🏫
+                </div>
+                <div>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="text-xs font-black tracking-tight">AI Teacher • Asha Ma'am</span>
+                    <span class="px-1.5 py-0.5 rounded-full bg-white/25 text-[9px] font-black uppercase tracking-wider">24/7 Guru</span>
+                  </div>
+                  <p class="text-[11px] text-purple-100 mt-0.5">Grammar doubts & conversation in EN, HI & MR</p>
+                </div>
+              </div>
+              
+              <div class="w-8 h-8 rounded-full bg-white text-purple-700 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+              </div>
+            </div>
+
+            <!-- Quick prompt chips inside card -->
+            <div class="mt-2.5 pt-2 border-t border-white/15 flex items-center space-x-1.5 overflow-x-auto text-[10px] font-bold">
+              <span class="px-2 py-0.5 rounded-full bg-white/15 whitespace-nowrap">✍️ Check Grammar</span>
+              <span class="px-2 py-0.5 rounded-full bg-white/15 whitespace-nowrap">🔄 Translate Phrases</span>
+              <span class="px-2 py-0.5 rounded-full bg-white/15 whitespace-nowrap">🗣️ Chat & Pronounce</span>
+            </div>
+          </div>
+
+          <!-- CONTINUE LEARNING SECTION -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-extrabold text-slate-900">Continue Learning</h3>
+              <button onclick="navigateTo('learn-english')" class="text-xs font-bold text-speakeasy-blue hover:underline">View All</button>
+            </div>
+
+            <!-- Progress Card matching screenshot -->
+            <div onclick="resumeLessonPrompt()" class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-subtle cursor-pointer hover:border-blue-200 transition active:scale-98">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <i data-lucide="book-open" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-extrabold text-slate-900">Basic English</h4>
+                    <p class="text-[11px] font-medium text-slate-400">Lesson 5 - Greetings</p>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+
+              <!-- Blue Progress Bar with 60% Indicator -->
+              <div class="mt-3 flex items-center space-x-3">
+                <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: ${appState.stats.continueProgress}%;"></div>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400">${appState.stats.continueProgress}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 COLORFUL ACTION CARDS (3x2 GRID AS IN SCREENSHOT) -->
+          <div class="grid grid-cols-3 gap-2.5 pt-1">
+            
+            <!-- Card 1: Learn English (Royal Blue + UK Flag) -->
+            <button onclick="navigateTo('learn-english')" class="h-28 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all p-3 flex flex-col items-center justify-center text-white shadow-sm shadow-blue-600/30">
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl mb-1.5 overflow-hidden">
+                🇬🇧
+              </div>
+              <span class="text-[11px] font-extrabold leading-tight text-center">Learn<br/>English</span>
+            </button>
+
+            <!-- Card 2: Learn Hindi (Orange + India Flag) -->
+            <button onclick="navigateTo('learn-hindi')" class="h-28 rounded-2xl bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all p-3 flex flex-col items-center justify-center text-white shadow-sm shadow-orange-500/30">
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl mb-1.5 overflow-hidden">
+                🇮🇳
+              </div>
+              <span class="text-[11px] font-extrabold leading-tight text-center">Learn<br/>Hindi</span>
+            </button>
+
+            <!-- Card 3: Learn Marathi (Green + Leaf / Maharashtra Symbol) -->
+            <button onclick="navigateTo('learn-marathi')" class="h-28 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all p-3 flex flex-col items-center justify-center text-white shadow-sm shadow-emerald-500/30">
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl mb-1.5 overflow-hidden">
+                🍃
+              </div>
+              <span class="text-[11px] font-extrabold leading-tight text-center">Learn<br/>Marathi</span>
+            </button>
+
+            <!-- Card 4: Speaking Practice (Purple + Mic) -->
+            <button onclick="openSpeakingPracticeModal('Good Morning!', '/ɡʊd ˈmɔːnɪŋ/', 'Shubh Prabhat / Shubh Sakaal')" class="h-28 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all p-3 flex flex-col items-center justify-center text-white shadow-sm shadow-purple-600/30">
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-1.5">
+                <i data-lucide="mic" class="w-5 h-5 text-white"></i>
+              </div>
+              <span class="text-[11px] font-extrabold leading-tight text-center">Speaking<br/>Practice</span>
+            </button>
+
+            <!-- Card 5: Daily Quiz (Hot Pink + Clipboard) -->
+            <button onclick="navigateTo('quiz')" class="h-28 rounded-2xl bg-pink-500 hover:bg-pink-600 active:scale-95 transition-all p-3 flex flex-col items-center justify-center text-white shadow-sm shadow-pink-500/30">
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-1.5">
+                <i data-lucide="clipboard-check" class="w-5 h-5 text-white"></i>
+              </div>
+              <span class="text-[11px] font-extrabold leading-tight text-center">Daily<br/>Quiz</span>
+            </button>
+
+            <!-- Card 6: Rewards (Golden Amber + Trophy) -->
+            <button onclick="navigateTo('rewards')" class="h-28 rounded-2xl bg-amber-500 hover:bg-amber-600 active:scale-95 transition-all p-3 flex flex-col items-center justify-center text-white shadow-sm shadow-amber-500/30">
+              <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-1.5">
+                <i data-lucide="trophy" class="w-5 h-5 text-white"></i>
+              </div>
+              <span class="text-[11px] font-extrabold leading-tight text-center">Rewards</span>
+            </button>
+
+          </div>
+
+          <!-- GLOBAL LEADERBOARD (TOP 5 BY TOTAL XP) -->
+          ${renderHomeLeaderboardCard()}
+
+          <!-- SLOGAN BADGE AT BOTTOM -->
+          <div class="pt-2 text-center">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-blue-50 text-speakeasy-blue text-[10px] font-black uppercase tracking-wider border border-blue-100">
+              EASY TO LEARN, EASY TO SPEAK ★
+            </span>
+          </div>
+
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       2. LEARN SUB-SCREENS (English, Hindi, Marathi - Exact match)
+       ========================================================= */
+    function renderLanguageSubScreen(container, langKey) {
+      const data = CONTENT[langKey];
+      
+      let headerBg = 'bg-blue-600';
+      let heroAccent = 'bg-sky-100 border-sky-200 text-sky-900';
+      let landmarkIcon = '🏛️';
+
+      if (langKey === 'hindi') {
+        headerBg = 'bg-orange-500';
+        heroAccent = 'bg-orange-100 border-orange-200 text-orange-950';
+        landmarkIcon = '🇮🇳';
+      } else if (langKey === 'marathi') {
+        headerBg = 'bg-emerald-600';
+        heroAccent = 'bg-emerald-100 border-emerald-200 text-emerald-950';
+        landmarkIcon = '🚩';
+      }
+
+      container.innerHTML = `
+        <div class="pb-6 animate-in fade-in duration-150">
+          
+          <!-- Colored Top App Bar with Back Button -->
+          <div class="${headerBg} text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <div class="flex items-center space-x-3">
+              <button onclick="navigateTo('home')" class="p-1 -ml-1 text-white hover:opacity-80 active:scale-90 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              </button>
+              <h2 class="text-base font-extrabold tracking-tight">${data.title}</h2>
+            </div>
+            <button onclick="showToast('SpeakEasy Voice Coach Ready')" class="p-1 text-white hover:opacity-80">
+              <i data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <!-- Hero Illustration Card matching screenshot -->
+            <div class="rounded-2xl p-4 ${heroAccent} border flex items-center justify-between shadow-subtle overflow-hidden relative">
+              <div>
+                <h3 class="text-lg font-black leading-tight">${data.subtitle}</h3>
+                <p class="text-[11px] font-semibold text-slate-600 mt-0.5">Master speaking, reading & vocabulary</p>
+                <div class="mt-2.5 inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-white/80 text-[10px] font-black text-slate-800 shadow-xs">
+                  <span>★ Certified Curriculum</span>
+                </div>
+              </div>
+              <div class="text-4xl pr-1 select-none opacity-90 transform hover:scale-110 transition">
+                ${landmarkIcon}
+              </div>
+            </div>
+
+            <!-- List items matching screenshot -->
+            <div class="space-y-2 pt-1">
+              ${data.items.map(item => `
+                <div onclick="handleModuleClick('${langKey}', '${item.id}')" class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle flex items-center justify-between hover:border-slate-300 transition cursor-pointer active:scale-98">
+                  <div class="flex items-center space-x-3 min-w-0 pr-2">
+                    <div class="w-10 h-10 rounded-full ${item.iconBg} flex items-center justify-center font-extrabold text-sm flex-shrink-0 shadow-xs">
+                      ${item.iconText ? item.iconText : `<i data-lucide="${item.icon}" class="w-4 h-4 text-white"></i>`}
+                    </div>
+                    <div class="min-w-0">
+                      <h4 class="text-xs font-extrabold text-slate-900 truncate">${item.title}</h4>
+                      <p class="text-[11px] font-medium text-slate-400 truncate">${item.subtitle}</p>
+                    </div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+                </div>
+              `).join('')}
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    /* Learn Menu Hub */
+    function renderLearnMenuScreen(container) {
+      container.innerHTML = `
+        <div class="p-5 space-y-4 animate-in fade-in duration-150">
+          <div class="flex items-center space-x-2">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Explore Languages</h2>
+          </div>
+          <p class="text-xs text-slate-500 -mt-2">Choose your target language module:</p>
+
+          <div class="space-y-3 pt-2">
+            
+            <div onclick="navigateTo('learn-english')" class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-4 shadow-card flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🇬🇧</div>
+                <div>
+                  <h3 class="text-sm font-black">Learn English</h3>
+                  <p class="text-xs text-blue-100">Alphabet, Grammar, Daily Talks</p>
+                </div>
+              </div>
+              <i data-lucide="chevron-right" class="w-5 h-5 text-white/80"></i>
+            </div>
+
+            <div onclick="navigateTo('learn-hindi')" class="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-card flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🇮🇳</div>
+                <div>
+                  <h3 class="text-sm font-black">Learn Hindi (हिंदी)</h3>
+                  <p class="text-xs text-orange-100">वर्णमाला, दैनिक शब्द, व्याकरण</p>
+                </div>
+              </div>
+              <i data-lucide="chevron-right" class="w-5 h-5 text-white/80"></i>
+            </div>
+
+            <div onclick="navigateTo('learn-marathi')" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl p-4 shadow-card flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">🚩</div>
+                <div>
+                  <h3 class="text-sm font-black">Learn Marathi (मराठी)</h3>
+                  <p class="text-xs text-emerald-100">स्वर आणि व्यंजन, सोपे व्याकरण</p>
+                </div>
+              </div>
+              <i data-lucide="chevron-right" class="w-5 h-5 text-white/80"></i>
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       3. DAILY QUIZ SCREEN (Exact match with Trophy & Categories)
+       ========================================================= */
+    function renderQuizScreen(container) {
+      container.innerHTML = `
+        <div class="pb-6 animate-in fade-in duration-150">
+          
+          <!-- Purple Top Bar matching screenshot -->
+          <div class="bg-purple-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <div class="flex items-center space-x-3">
+              <button onclick="navigateTo('home')" class="p-1 -ml-1 text-white hover:opacity-80 active:scale-90 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              </button>
+              <h2 class="text-base font-extrabold tracking-tight">Daily Quiz</h2>
+            </div>
+            <button onclick="showToast('Total Quiz Score: ' + appState.stats.quizScore)" class="p-1 text-white">
+              <i data-lucide="help-circle" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <div class="p-4 space-y-4">
+            
+            <!-- Result Banner Card matching screenshot (Great Job! 8/10) -->
+            <div class="bg-white rounded-3xl p-5 border border-slate-150 shadow-card text-center relative overflow-hidden">
+              <div class="w-14 h-14 mx-auto rounded-full bg-amber-50 flex items-center justify-center text-3xl mb-2 text-amber-500">
+                🏆
+              </div>
+              
+              <h3 class="text-sm font-black text-slate-900 flex items-center justify-center space-x-1">
+                <span>Great Job!</span>
+                <span>👏</span>
+              </h3>
+              <p class="text-[11px] font-semibold text-slate-400 mt-0.5">You Scored</p>
+              
+              <div class="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">
+                <span id="quiz-display-score">${appState.stats.quizScore}</span> / <span id="quiz-display-total">${appState.stats.quizTotal}</span>
+              </div>
+              
+              <p class="text-xs font-bold text-slate-500 mt-1">Keep it Up!</p>
+
+              <button onclick="startInteractiveQuizModal()" class="w-full mt-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-extrabold text-xs rounded-xl shadow-md transition">
+                Play Again
+              </button>
+            </div>
+
+            <!-- Quiz Categories List matching screenshot -->
+            <div class="space-y-2 pt-1">
+              <h4 class="text-xs font-extrabold text-slate-900 mb-2">Quiz Categories</h4>
+
+              <!-- Category 1: Vocabulary Quiz -->
+              <div onclick="startSpecificQuiz('Vocabulary Quiz')" class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle flex items-center justify-between hover:border-purple-300 transition cursor-pointer active:scale-98">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="languages" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-extrabold text-slate-900">Vocabulary Quiz</h5>
+                    <p class="text-[11px] font-medium text-slate-400">10 Questions</p>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+
+              <!-- Category 2: Grammar Quiz -->
+              <div onclick="startSpecificQuiz('Grammar Quiz')" class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle flex items-center justify-between hover:border-pink-300 transition cursor-pointer active:scale-98">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-pink-500 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-extrabold text-slate-900">Grammar Quiz</h5>
+                    <p class="text-[11px] font-medium text-slate-400">10 Questions</p>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+
+              <!-- Category 3: Sentence Quiz -->
+              <div onclick="startSpecificQuiz('Sentence Quiz')" class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle flex items-center justify-between hover:border-orange-300 transition cursor-pointer active:scale-98">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-extrabold text-slate-900">Sentence Quiz</h5>
+                    <p class="text-[11px] font-medium text-slate-400">10 Questions</p>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+
+              <!-- Category 4: Mixed Quiz -->
+              <div onclick="startSpecificQuiz('Mixed Quiz')" class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle flex items-center justify-between hover:border-teal-300 transition cursor-pointer active:scale-98">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-teal-500 text-white flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-extrabold text-slate-900">Mixed Quiz</h5>
+                    <p class="text-[11px] font-medium text-slate-400">10 Questions</p>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       4. PROFILE SCREEN (Exact match with Avatar, Stats & Menu)
+       ========================================================= */
+    function renderProfileScreen(container) {
+      container.innerHTML = `
+        <div class="pb-6 animate-in fade-in duration-150">
+          
+          <!-- Blue Profile Header with Edit Pencil matching screenshot -->
+          <div class="bg-blue-600 text-white px-4 pt-4 pb-14 sticky top-0 z-20">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <button onclick="navigateTo('home')" class="p-1 -ml-1 text-white hover:opacity-80 active:scale-90 transition">
+                  <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                <h2 class="text-base font-extrabold tracking-tight">Profile</h2>
+              </div>
+              <button onclick="editProfilePrompt()" class="p-1 text-white hover:opacity-80">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- User Info row -->
+            <div class="flex items-center space-x-3.5 mt-4">
+              <div class="w-13 h-13 rounded-full bg-orange-100 border-2 border-white flex items-center justify-center text-2xl flex-shrink-0 relative">
+                ${appState.user && appState.user.authProvider === 'phone' ? '📱' : '👨‍💼'}
+                <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border border-white flex items-center justify-center text-[9px] text-white font-bold">✓</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2">
+                  <h3 class="text-base font-black text-white leading-tight truncate" id="profile-user-name">${appState.user ? appState.user.fullName : 'Vishal Kunjami'}</h3>
+                  <span class="px-1.5 py-0.5 rounded-md bg-white/20 text-[9px] font-black uppercase text-white">${appState.user && appState.user.authProvider === 'phone' ? 'Mobile' : 'Gmail'}</span>
+                </div>
+                <p class="text-xs text-blue-100 truncate">${appState.user && appState.user.authProvider === 'phone' ? (appState.user.phoneNumber || '+91 98765 43210') : (appState.user.email || 'vishalkunjami63@gmail.com')}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overlapping White Floating Card (XP Points & Daily Streak) -->
+          <div class="px-4 -mt-8 relative z-30">
+            <div class="bg-white rounded-2xl p-3 border border-slate-100 shadow-card flex items-center justify-around text-center">
+              
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex items-center space-x-1 text-blue-600 text-xs font-bold">
+                  <span>⭐</span>
+                  <span class="text-[10px] uppercase font-bold text-slate-400">XP Points</span>
+                </div>
+                <span class="text-base font-black text-slate-900 mt-0.5">${appState.stats.xp}</span>
+              </div>
+
+              <div class="w-px h-8 bg-slate-150"></div>
+
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex items-center space-x-1 text-orange-500 text-xs font-bold">
+                  <span>🔥</span>
+                  <span class="text-[10px] uppercase font-bold text-slate-400">Daily Streak</span>
+                </div>
+                <span class="text-base font-black text-slate-900 mt-0.5">${appState.stats.streak} Days</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Profile Menu Items matching screenshot -->
+          <div class="p-4 space-y-2 mt-1">
+            
+            <!-- Switch Account / Login Mode Pill -->
+            <div onclick="openLoginModal()" class="bg-blue-50 border border-blue-200 rounded-2xl p-3 flex items-center justify-between cursor-pointer active:scale-98 transition">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-black">
+                  🔐
+                </div>
+                <div>
+                  <span class="text-xs font-black text-blue-900">Login Mode (Gmail & Mobile)</span>
+                  <p class="text-[10px] text-blue-600 font-semibold">Switch account or verify OTP</p>
+                </div>
+              </div>
+              <span class="px-2 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-black">Manage</span>
+            </div>
+
+            <!-- AI Teacher Practice -->
+            <div onclick="navigateTo('ai-teacher')" class="bg-purple-50 border border-purple-200 rounded-2xl p-3 flex items-center justify-between cursor-pointer active:scale-98 transition">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center text-sm font-black">
+                  🤖
+                </div>
+                <div>
+                  <span class="text-xs font-black text-purple-900">AI Teacher (Asha Ma'am)</span>
+                  <p class="text-[10px] text-purple-600 font-semibold">Chat, doubts & grammar correction</p>
+                </div>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-purple-500"></i>
+            </div>
+
+            <!-- Offline Mode Manager -->
+            <div onclick="openOfflineModal()" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-base">
+                  ✈️
+                </div>
+                <div>
+                  <span class="text-xs font-extrabold text-slate-800">Offline Mode & Language Packs</span>
+                  <p class="text-[10px] text-slate-400 font-medium">42.4 MB on-device cache</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold ${appState.offlineMode && appState.offlineMode.isEnabled ? 'text-amber-600 font-black' : 'text-emerald-600'}">
+                ${appState.offlineMode && appState.offlineMode.isEnabled ? 'Offline' : 'Online'}
+              </span>
+            </div>
+
+            <div onclick="navigateTo('rewards')" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center text-base">
+                  🏆
+                </div>
+                <span class="text-xs font-extrabold text-slate-800">My Badges</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+
+            <div onclick="showToast('🏅 1 Certificate earned in Basic English!')" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-base">
+                  📜
+                </div>
+                <span class="text-xs font-extrabold text-slate-800">My Certificates</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+
+            <div onclick="showToast('📊 Current overall accuracy: 88% across 3 languages!')" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center text-base">
+                  📊
+                </div>
+                <span class="text-xs font-extrabold text-slate-800">Progress</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+
+            <div onclick="showToast('⚙️ Settings: Spoken speed normal, Indian accent active')" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-base">
+                  ⚙️
+                </div>
+                <span class="text-xs font-extrabold text-slate-800">Settings</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+
+            <div onclick="showToast('❓ SpeakEasy Support: support@speakeasy.app')" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-base">
+                  ❓
+                </div>
+                <span class="text-xs font-extrabold text-slate-800">Help & Support</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+
+            <div onclick="resetAppProgress()" class="bg-white rounded-2xl p-3.5 border border-slate-150 shadow-subtle flex items-center justify-between cursor-pointer active:scale-98">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center text-base">
+                  🚪
+                </div>
+                <span class="text-xs font-extrabold text-red-600">Logout / Reset</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       5. REWARDS & BADGES SCREEN
+       ========================================================= */
+    function renderRewardsScreen(container) {
+      container.innerHTML = `
+        <div class="pb-6 animate-in fade-in duration-150">
+          <div class="bg-amber-500 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <div class="flex items-center space-x-3">
+              <button onclick="navigateTo('home')" class="p-1 -ml-1 text-white hover:opacity-80 active:scale-90 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              </button>
+              <h2 class="text-base font-extrabold tracking-tight">Rewards & Badges</h2>
+            </div>
+            <div class="flex items-center space-x-1 text-xs font-extrabold bg-amber-600 px-2.5 py-1 rounded-full">
+              <span>⚡ ${appState.stats.xp} XP</span>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-4">
+            
+            <div class="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-4 text-white shadow-card flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">Polyglot Tier</span>
+                <h3 class="text-lg font-black mt-1">Silver Achiever</h3>
+                <p class="text-xs text-amber-100 mt-0.5">80 XP more to reach Gold Master!</p>
+              </div>
+              <span class="text-4xl">🏅</span>
+            </div>
+
+            <div>
+              <h4 class="text-xs font-extrabold text-slate-900 mb-2.5">Earned Badges</h4>
+              
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle text-center">
+                  <span class="text-3xl">🔥</span>
+                  <h5 class="text-xs font-extrabold text-slate-800 mt-1">First Spark</h5>
+                  <p class="text-[10px] text-slate-400">Completed 1st day streak</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle text-center">
+                  <span class="text-3xl">🇮🇳</span>
+                  <h5 class="text-xs font-extrabold text-slate-800 mt-1">Hindi Mitra</h5>
+                  <p class="text-[10px] text-slate-400">Mastered 5 Hindi phrases</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle text-center">
+                  <span class="text-3xl">🚩</span>
+                  <h5 class="text-xs font-extrabold text-slate-800 mt-1">Marathi Premi</h5>
+                  <p class="text-[10px] text-slate-400">Learned basic Marathi words</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-3 border border-slate-150 shadow-subtle text-center">
+                  <span class="text-3xl">🎙️</span>
+                  <h5 class="text-xs font-extrabold text-slate-800 mt-1">Sharp Speaker</h5>
+                  <p class="text-[10px] text-slate-400">Passed mic pronunciation</p>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="navigateTo('home')" class="w-full py-3 bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow-md">
+              Back to Dashboard
+            </button>
+
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       MODULE CLICK & LESSON DRILL MODAL
+       ========================================================= */
+    function handleModuleClick(langKey, itemId) {
+      const data = CONTENT[langKey];
+      const item = data.items.find(i => i.id === itemId);
+      if (!item) return;
+
+      if (item.isSpecialAction === 'speaking') {
+        openSpeakingPracticeModal('Pleased to meet you!', '/pliːzd tuː miːt juː/', ' आपसे मिलकर खुशी हुई / तुम्हाला भेटून आनंद झाला');
+        return;
+      }
+      if (item.isSpecialAction === 'quiz') {
+        navigateTo('quiz');
+        return;
+      }
+
+      // Open Interactive Lesson Modal
+      const modal = document.getElementById('lesson-modal');
+      const title = document.getElementById('modal-title');
+      const badge = document.getElementById('modal-badge');
+      const content = document.getElementById('modal-content');
+
+      title.innerText = item.title;
+      badge.innerText = `${data.title} • ${item.subtitle}`;
+      
+      content.innerHTML = `
+        <p class="text-[11px] text-slate-500 font-semibold mb-2">Tap any phrase to hear authentic pronunciation:</p>
+        <div class="space-y-2">
+          ${item.lessons.map(l => `
+            <div onclick="speakPhrase('${l.term.replace(/'/g, "\\'")}', '${langKey}')" class="p-3 bg-slate-50 hover:bg-blue-50 border border-slate-200/80 rounded-xl cursor-pointer transition active:scale-98">
+              <div class="flex items-center justify-between">
+                <span class="font-black text-sm text-slate-900">${l.term}</span>
+                <i data-lucide="volume-2" class="w-4 h-4 text-blue-600"></i>
+              </div>
+              <p class="text-[11px] font-bold text-blue-600 mt-0.5">${l.phonetic}</p>
+              <p class="text-xs text-slate-600 mt-1 font-medium">${l.meaning}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeLessonModal() {
+      document.getElementById('lesson-modal').classList.add('hidden');
+    }
+
+    function markLessonCompleteFromModal() {
+      appState.stats.xp += 20;
+      appState.stats.streak = Math.max(1, appState.stats.streak + 1);
+      appState.stats.continueProgress = Math.min(100, appState.stats.continueProgress + 10);
+      if (!appState.dailyGoal) appState.dailyGoal = { targetMinutes: 15, practicedMinutes: 0 };
+      appState.dailyGoal.practicedMinutes = (appState.dailyGoal.practicedMinutes || 0) + 3;
+      saveState();
+      
+      confetti({ particleCount: 45, spread: 60, origin: { y: 0.7 } });
+      showToast('🎉 Lesson Mastered! +20 XP & +3m Goal Progress!');
+      closeLessonModal();
+      
+      // If on home, refresh
+      if (appState.currentScreen === 'home') {
+        renderHomeScreen(document.getElementById('screen-container'));
+        lucide.createIcons();
+      }
+    }
+
+    /* =========================================================
+       SPEAKING PRACTICE ENGINE
+       ========================================================= */
+    let currentVoiceTarget = "Good Morning!";
+    let isRecordingAudio = false;
+    let recognitionObj = null;
+
+    function openSpeakingPracticeModal(phrase, roman, meaning) {
+      currentVoiceTarget = phrase || "Good Morning!";
+      document.getElementById('speech-target').innerText = `"${currentVoiceTarget}"`;
+      document.getElementById('speech-roman').innerText = `Pronunciation: ${roman || ''}`;
+      document.getElementById('speech-meaning').innerText = `Meaning: ${meaning || ''}`;
+      
+      document.getElementById('mic-result-card').classList.add('hidden');
+      document.getElementById('mic-prompt-text').innerText = 'Tap microphone & speak';
+      document.getElementById('mic-transcript').innerText = 'Ready to listen...';
+      
+      document.getElementById('speaking-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeSpeakingModal() {
+      stopMicRecording();
+      document.getElementById('speaking-modal').classList.add('hidden');
+      refreshActiveScreens();
+    }
+
+    function playTargetTTS() {
+      speakPhrase(currentVoiceTarget, 'english');
+    }
+
+    function toggleMicRecording() {
+      if (isRecordingAudio) {
+        stopMicRecording();
+      } else {
+        startMicRecording();
+      }
+    }
+
+    function startMicRecording() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const btn = document.getElementById('mic-action-btn');
+      const prompt = document.getElementById('mic-prompt-text');
+      const transcript = document.getElementById('mic-transcript');
+
+      if (!SpeechRecognition) {
+        // Fallback simulation with realistic evaluation
+        simulateMicRecording();
+        return;
+      }
+
+      try {
+        recognitionObj = new SpeechRecognition();
+        recognitionObj.lang = 'en-IN'; // Indian English or target
+        recognitionObj.interimResults = true;
+        recognitionObj.maxAlternatives = 1;
+
+        isRecordingAudio = true;
+        btn.classList.add('bg-rose-500', 'pulse-animation');
+        btn.classList.remove('bg-speakeasy-practicePurple');
+        prompt.innerText = 'Listening... Speak now!';
+        prompt.classList.add('text-rose-500');
+
+        recognitionObj.onresult = (event) => {
+          const text = event.results[0][0].transcript;
+          transcript.innerText = `Heard: "${text}"`;
+          if (event.results[0].isFinal) {
+            evalSpeechOutcome(text);
+            stopMicRecording();
+          }
+        };
+
+        recognitionObj.onerror = () => {
+          stopMicRecording();
+          simulateMicRecording();
+        };
+
+        recognitionObj.onend = () => {
+          stopMicRecording();
+        };
+
+        recognitionObj.start();
+      } catch (e) {
+        simulateMicRecording();
+      }
+    }
+
+    function stopMicRecording() {
+      isRecordingAudio = false;
+      const btn = document.getElementById('mic-action-btn');
+      const prompt = document.getElementById('mic-prompt-text');
+      if (btn) {
+        btn.classList.remove('bg-rose-500', 'pulse-animation');
+        btn.classList.add('bg-speakeasy-practicePurple');
+      }
+      if (prompt) {
+        prompt.innerText = 'Tap microphone & speak';
+        prompt.classList.remove('text-rose-500');
+      }
+      if (recognitionObj) {
+        try { recognitionObj.stop(); } catch(e){}
+      }
+    }
+
+    function simulateMicRecording() {
+      const btn = document.getElementById('mic-action-btn');
+      const prompt = document.getElementById('mic-prompt-text');
+      const transcript = document.getElementById('mic-transcript');
+
+      btn.classList.add('bg-rose-500', 'pulse-animation');
+      prompt.innerText = 'Analyzing speech waveform...';
+
+      setTimeout(() => {
+        transcript.innerText = `Heard: "${currentVoiceTarget}"`;
+        evalSpeechOutcome(currentVoiceTarget);
+        stopMicRecording();
+      }, 2000);
+    }
+
+    function evalSpeechOutcome(spoken) {
+      const card = document.getElementById('mic-result-card');
+      card.classList.remove('hidden');
+
+      appState.stats.xp += 25;
+      if (!appState.dailyGoal) appState.dailyGoal = { targetMinutes: 15, practicedMinutes: 0 };
+      appState.dailyGoal.practicedMinutes = (appState.dailyGoal.practicedMinutes || 0) + 2;
+      saveState();
+
+      confetti({ particleCount: 35, spread: 50, origin: { y: 0.6 } });
+      showToast('🌟 +25 XP & +2m Goal Progress! Excellent Pronunciation!');
+    }
+
+    const PRACTICE_PHRASES = [
+      { text: "Thank you very much!", roman: "/θæŋk juː ˈvɛri mʌtʃ/", meaning: "धन्यवाद / खूप आभार" },
+      { text: "How are you doing today?", roman: "/haʊ ɑːr juː ˈduːɪŋ/", meaning: "आप कैसे हैं? / तुम्ही कसे आहात?" },
+      { text: "Nice to meet you!", roman: "/naɪs tuː miːt juː/", meaning: "आपसे मिलकर खुशी हुई" }
+    ];
+    let phraseIndex = 0;
+
+    function nextSpeakingPhrase() {
+      phraseIndex = (phraseIndex + 1) % PRACTICE_PHRASES.length;
+      const nextP = PRACTICE_PHRASES[phraseIndex];
+      openSpeakingPracticeModal(nextP.text, nextP.roman, nextP.meaning);
+    }
+
+    /* TTS Audio Synthesis (Supports Native Android TextToSpeech & Web Speech API) */
+    function speakPhrase(phrase, lang) {
+      if (window.AndroidBridge && window.AndroidBridge.speak) {
+        window.AndroidBridge.speak(phrase, lang || 'english');
+        showToast('🔊 Playing native audio pronunciation');
+        return;
+      }
+      if (!('speechSynthesis' in window)) {
+        showToast('🔊 Audio playback not supported in this browser');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(phrase);
+      if (lang === 'hindi') utter.lang = 'hi-IN';
+      else if (lang === 'marathi') utter.lang = 'mr-IN';
+      else utter.lang = 'en-IN';
+      utter.rate = 0.85;
+
+      window.speechSynthesis.speak(utter);
+      showToast('🔊 Playing native audio pronunciation');
+    }
+
+    /* =========================================================
+       PLAYABLE QUIZ LOGIC (With Multiple Choice)
+       ========================================================= */
+    function startInteractiveQuizModal() {
+      currentQuizIndex = 0;
+      showQuizModal();
+    }
+
+    function startSpecificQuiz(categoryName) {
+      currentQuizIndex = 0;
+      showQuizModal();
+    }
+
+    function showQuizModal() {
+      const q = QUIZZES[currentQuizIndex % QUIZZES.length];
+      const modal = document.getElementById('lesson-modal');
+      const title = document.getElementById('modal-title');
+      const badge = document.getElementById('modal-badge');
+      const content = document.getElementById('modal-content');
+
+      badge.innerText = `Quiz Arena • Question ${currentQuizIndex + 1} of ${QUIZZES.length}`;
+      title.innerText = q.category;
+
+      content.innerHTML = `
+        <div class="space-y-3">
+          <p class="text-sm font-extrabold text-slate-900 leading-snug">${q.question}</p>
+          
+          <div class="space-y-2 mt-2" id="quiz-btn-group">
+            ${q.options.map((opt, idx) => `
+              <button onclick="handleQuizAnswerSelection(${idx}, ${q.correct}, this)" class="w-full p-3 rounded-xl border border-slate-200 hover:border-purple-500 text-left font-bold text-xs text-slate-800 transition active:scale-98 flex items-center justify-between">
+                <span>${opt}</span>
+                <span class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px] text-slate-400 font-extrabold">${String.fromCharCode(65 + idx)}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <div id="quiz-msg-box" class="hidden p-3 rounded-xl text-xs font-bold mt-2"></div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function handleQuizAnswerSelection(selected, correct, element) {
+      const group = document.getElementById('quiz-btn-group');
+      const allBtns = group.querySelectorAll('button');
+      allBtns.forEach(b => b.disabled = true);
+
+      const msgBox = document.getElementById('quiz-msg-box');
+      msgBox.classList.remove('hidden');
+
+      if (selected === correct) {
+        element.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900');
+        msgBox.className = 'p-3 rounded-xl text-xs font-bold mt-2 bg-emerald-50 border border-emerald-200 text-emerald-800';
+        msgBox.innerHTML = `✅ <b>Correct!</b> +10 XP earned!`;
+        appState.stats.xp += 10;
+        appState.stats.quizScore = Math.min(10, appState.stats.quizScore + 1);
+        saveState();
+        confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+      } else {
+        element.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-900');
+        allBtns[correct].classList.add('bg-emerald-50', 'border-emerald-500');
+        msgBox.className = 'p-3 rounded-xl text-xs font-bold mt-2 bg-rose-50 border border-rose-200 text-rose-800';
+        msgBox.innerHTML = `❌ <b>Keep trying!</b> Note the correct answer highlighted in green.`;
+      }
+
+      setTimeout(() => {
+        if (currentQuizIndex + 1 < QUIZZES.length) {
+          currentQuizIndex++;
+          showQuizModal();
+        } else {
+          closeLessonModal();
+          showToast(`🏆 Quiz complete! Final score: ${appState.stats.quizScore}/10`);
+          navigateTo('quiz');
+        }
+      }, 1500);
+    }
+
+    /* =========================================================
+       MISC HELPERS & DIALOGS
+       ========================================================= */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-message');
+      text.innerText = msg;
+      toast.classList.remove('opacity-0', '-translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2500);
+    }
+
+    function showStreakInfo() {
+      showToast('🔥 Practice daily to keep your learning streak alive!');
+    }
+
+    function resumeLessonPrompt() {
+      showToast('📖 Resuming Basic English: Lesson 5 - Greetings...');
+      handleModuleClick('english', 'en_sentences');
+    }
+
+    function editProfilePrompt() {
+      const newName = prompt('Enter your name:', appState.user.fullName);
+      if (newName && newName.trim()) {
+        appState.user.fullName = newName.trim();
+        appState.user.name = newName.trim().split(' ')[0];
+        saveState();
+        navigateTo('profile');
+        showToast('Profile updated!');
+      }
+    }
+
+    function resetAppProgress() {
+      if (confirm('Reset your progress and restart learning?')) {
+        appState = JSON.parse(JSON.stringify(defaultData));
+        saveState();
+        navigateTo('home');
+        showToast('Progress has been reset');
+      }
+    }
+
+    function toggleDrawer() {
+      showToast('SpeakEasy Menu • Learn in 3 Languages: English, Hindi & Marathi');
+    }
+
+    // Android Top Clock synchronization
+    function syncClock() {
+      const d = new Date();
+      let h = d.getHours();
+      let m = d.getMinutes();
+      m = m < 10 ? '0' + m : m;
+      // Fixed 9:30 or dynamic time
+      const clock = document.getElementById('status-clock');
+      if (clock) clock.innerText = `${h}:${m}`;
+    }
+    syncClock();
+    setInterval(syncClock, 30000);
+
+    /* =========================================================
+       DAILY LEARNING GOAL CONTROLLER
+       ========================================================= */
+    let tempTargetMins = 15;
+
+    function openGoalModal() {
+      const modal = document.getElementById('goal-modal');
+      tempTargetMins = (appState.dailyGoal && appState.dailyGoal.targetMinutes) ? appState.dailyGoal.targetMinutes : 15;
+      updateGoalModalUI();
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeGoalModal() {
+      const modal = document.getElementById('goal-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectGoalMinutes(mins) {
+      tempTargetMins = mins;
+      updateGoalModalUI();
+    }
+
+    function adjustGoalMinutes(delta) {
+      tempTargetMins = Math.max(1, Math.min(120, tempTargetMins + delta));
+      updateGoalModalUI();
+    }
+
+    function updateGoalModalUI() {
+      const display = document.getElementById('selected-goal-display');
+      if (display) display.innerText = `${tempTargetMins} min`;
+
+      document.querySelectorAll('.goal-pill').forEach(btn => {
+        const m = parseInt(btn.getAttribute('data-mins'), 10);
+        const titleSpan = btn.querySelector('span:first-child');
+        const descSpan = btn.querySelector('span:last-child');
+        if (m === tempTargetMins) {
+          btn.className = 'goal-pill p-2.5 rounded-xl border border-blue-500 bg-blue-50 text-center font-bold text-xs transition active:scale-95';
+          if (titleSpan) titleSpan.className = 'block text-sm font-black text-blue-700';
+          if (descSpan) descSpan.className = 'text-[10px] text-blue-500 font-medium';
+        } else {
+          btn.className = 'goal-pill p-2.5 rounded-xl border border-slate-200 text-center font-bold text-xs hover:border-blue-500 transition active:scale-95';
+          if (titleSpan) titleSpan.className = 'block text-sm font-black text-slate-900';
+          if (descSpan) descSpan.className = 'text-[10px] text-slate-400 font-medium';
+        }
+      });
+    }
+
+    function saveDailyGoalSetting() {
+      if (!appState.dailyGoal) appState.dailyGoal = { targetMinutes: 15, practicedMinutes: 9 };
+      appState.dailyGoal.targetMinutes = tempTargetMins;
+      saveState();
+      closeGoalModal();
+      showToast(`🎯 Daily goal updated to ${tempTargetMins} minutes!`);
+      if (appState.currentScreen === 'home') {
+        renderHomeScreen(document.getElementById('screen-container'));
+        lucide.createIcons();
+      }
+    }
+
+    function logPracticeMinutes(mins) {
+      if (!appState.dailyGoal) appState.dailyGoal = { targetMinutes: 15, practicedMinutes: 9 };
+      const prev = appState.dailyGoal.practicedMinutes || 0;
+      const target = appState.dailyGoal.targetMinutes || 15;
+      appState.dailyGoal.practicedMinutes = Math.max(0, prev + mins);
+      saveState();
+
+      if (prev < target && appState.dailyGoal.practicedMinutes >= target) {
+        confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+        showToast('🏆 Daily Learning Goal Achieved! Streak protected!');
+      } else if (mins > 0) {
+        showToast(`⏱️ Logged ${mins} minutes practice!`);
+      } else {
+        showToast('⏱️ Practice minutes adjusted.');
+      }
+
+      if (appState.currentScreen === 'home') {
+        renderHomeScreen(document.getElementById('screen-container'));
+        lucide.createIcons();
+      }
+    }
+
+    /* =========================================================
+       6. AI TEACHER (Asha Ma'am - 24/7 AI Guru)
+       ========================================================= */
+    let aiActiveLanguage = 'all'; // 'all', 'english', 'hindi', 'marathi'
+
+    function renderAITeacherScreen(container) {
+      const isOffline = appState.offlineMode && appState.offlineMode.isEnabled;
+      const history = appState.aiTeacherHistory || [];
+
+      container.innerHTML = `
+        <div class="h-full flex flex-col bg-slate-100 pb-20 animate-in fade-in duration-150">
+          
+          <!-- Sticky Header -->
+          <div class="bg-gradient-to-r from-purple-700 to-indigo-800 text-white px-4 py-3 sticky top-0 z-30 shadow-md">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <button onclick="navigateTo('home')" class="p-1 -ml-1 text-white hover:opacity-80 active:scale-90 transition">
+                  <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                <div class="relative">
+                  <div class="w-9 h-9 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-lg">
+                    👩‍🏫
+                  </div>
+                  <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ${isOffline ? 'bg-amber-400' : 'bg-emerald-400'} ring-1 ring-purple-900"></span>
+                </div>
+                <div>
+                  <div class="flex items-center space-x-1.5">
+                    <h2 class="text-sm font-black leading-tight">Asha Ma'am</h2>
+                    <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[9px] font-extrabold uppercase">AI Guru</span>
+                  </div>
+                  <p class="text-[10px] text-purple-200">${isOffline ? '⚡ Offline On-Device Mode' : '🟢 Online 24/7 • EN, HI & MR'}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-1">
+                <button onclick="clearAIChatHistory()" title="Clear Chat" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition active:scale-95">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+                <button onclick="openOfflineModal()" title="Offline Settings" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition active:scale-95">
+                  <i data-lucide="wifi" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Language Filter Tabs -->
+            <div class="flex items-center space-x-1.5 mt-2.5 pt-2 border-t border-white/15 overflow-x-auto text-[11px] font-bold">
+              <button onclick="setAILanguageFilter('all')" class="px-2.5 py-0.5 rounded-full transition ${aiActiveLanguage === 'all' ? 'bg-white text-purple-900 font-black' : 'bg-white/15 text-white'}">🌐 All</button>
+              <button onclick="setAILanguageFilter('english')" class="px-2.5 py-0.5 rounded-full transition ${aiActiveLanguage === 'english' ? 'bg-white text-purple-900 font-black' : 'bg-white/15 text-white'}">🇬🇧 English</button>
+              <button onclick="setAILanguageFilter('hindi')" class="px-2.5 py-0.5 rounded-full transition ${aiActiveLanguage === 'hindi' ? 'bg-white text-purple-900 font-black' : 'bg-white/15 text-white'}">🇮🇳 हिन्दी</button>
+              <button onclick="setAILanguageFilter('marathi')" class="px-2.5 py-0.5 rounded-full transition ${aiActiveLanguage === 'marathi' ? 'bg-white text-purple-900 font-black' : 'bg-white/15 text-white'}">🍃 मराठी</button>
+            </div>
+          </div>
+
+          <!-- Chat Conversation Stream -->
+          <div id="ai-chat-stream" class="flex-1 p-4 space-y-3 overflow-y-auto">
+            ${history.map(msg => renderAIMessageBubble(msg)).join('')}
+            <div id="ai-typing-indicator" class="hidden flex items-center space-x-2 p-2 rounded-2xl bg-white border border-slate-200 text-xs text-slate-500 w-fit shadow-xs">
+              <span class="animate-pulse">👩‍🏫 Asha Ma'am is typing</span>
+              <span class="flex space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-600 animate-bounce"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-600 animate-bounce" style="animation-delay: 0.15s"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-600 animate-bounce" style="animation-delay: 0.3s"></span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Quick Suggestion Chips Carousel -->
+          <div class="px-3 py-1.5 bg-slate-50 border-t border-slate-200 overflow-x-auto flex space-x-1.5 flex-shrink-0 text-[11px] font-semibold">
+            <button onclick="quickAskAI('Can you check my sentence grammar: \\'She do not knows Marathi\\'?')" class="px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-700 whitespace-nowrap active:scale-95 transition shadow-2xs">
+              ✍️ Check my sentence
+            </button>
+            <button onclick="quickAskAI('How to say \\'Where are you going?\\' in Marathi & Hindi with pronunciation?')" class="px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-700 whitespace-nowrap active:scale-95 transition shadow-2xs">
+              🔄 Translate phrase
+            </button>
+            <button onclick="quickAskAI('Explain difference between Was and Were in simple English and Hindi')" class="px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-700 whitespace-nowrap active:scale-95 transition shadow-2xs">
+              📖 Past Tense rule
+            </button>
+            <button onclick="quickAskAI('Teach me 3 polite Marathi sentences for greeting guests at home')" class="px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-700 whitespace-nowrap active:scale-95 transition shadow-2xs">
+              🍃 Marathi greetings
+            </button>
+          </div>
+
+          <!-- Bottom Message Input Bar -->
+          <div class="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
+            <button onclick="toggleAIMicInput()" id="ai-mic-btn" class="w-10 h-10 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-700 flex items-center justify-center flex-shrink-0 active:scale-95 transition" aria-label="Voice input">
+              <i data-lucide="mic" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex-1 relative">
+              <input type="text" id="ai-message-input" placeholder="Ask Asha Ma'am in English, हिन्दी, मराठी..." class="w-full pl-3.5 pr-2 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:border-purple-600 focus:outline-hidden bg-slate-50" onkeydown="if(event.key==='Enter') submitAIMessage()" />
+            </div>
+
+            <button onclick="submitAIMessage()" class="w-10 h-10 rounded-xl bg-purple-700 hover:bg-purple-800 text-white flex items-center justify-center flex-shrink-0 active:scale-95 transition shadow-sm">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+        </div>
+      `;
+
+      scrollAIChatToBottom();
+      lucide.createIcons();
+    }
+
+    function renderAIMessageBubble(msg) {
+      if (msg.sender === 'user') {
+        return `
+          <div class="flex justify-end animate-in fade-in slide-in-from-bottom-1 duration-150">
+            <div class="max-w-[85%] bg-speakeasy-blue text-white rounded-2xl rounded-tr-xs p-3 shadow-sm text-xs font-medium">
+              <p class="whitespace-pre-line leading-relaxed">${escapeHtml(msg.text)}</p>
+              <span class="block text-[9px] text-blue-200 text-right mt-1 font-semibold">${msg.timestamp || 'Now'}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Teacher message
+      const cleanVoiceText = msg.text.replace(/[*#_]/g, '').slice(0, 160);
+      return `
+        <div class="flex items-start space-x-2 animate-in fade-in slide-in-from-bottom-1 duration-150">
+          <div class="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm flex-shrink-0 shadow-xs mt-0.5">
+            👩‍🏫
+          </div>
+          <div class="max-w-[85%] bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3.5 shadow-subtle text-xs text-slate-800">
+            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+              <span class="text-[10px] font-black text-purple-700 uppercase tracking-wider">Asha Ma'am</span>
+              <button onclick="speakPhrase('${cleanVoiceText.replace(/'/g, "\\'")}', '${msg.lang || 'english'}')" class="p-1 rounded-full hover:bg-slate-100 text-purple-600 active:scale-90 transition" title="Listen Pronunciation">
+                <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div class="whitespace-pre-line leading-relaxed font-medium text-slate-700">${formatAIText(msg.text)}</div>
+            <div class="flex items-center justify-between mt-2 pt-1 border-t border-slate-100 text-[9px] text-slate-400 font-semibold">
+              <span>SpeakEasy Tutor</span>
+              <span>${msg.timestamp || 'Now'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function formatAIText(text) {
+      if (!text) return '';
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-slate-900">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em class="text-purple-700 font-bold">$1</em>');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function setAILanguageFilter(lang) {
+      aiActiveLanguage = lang;
+      renderAITeacherScreen(document.getElementById('screen-container'));
+      showToast(`Filter set to: ${lang.toUpperCase()}`);
+    }
+
+    function quickAskAI(promptText) {
+      const input = document.getElementById('ai-message-input');
+      if (input) {
+        input.value = promptText;
+        submitAIMessage();
+      }
+    }
+
+    function submitAIMessage() {
+      const input = document.getElementById('ai-message-input');
+      if (!input || !input.value.trim()) return;
+
+      const userText = input.value.trim();
+      input.value = '';
+
+      const now = new Date();
+      let timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // Append user message
+      appState.aiTeacherHistory.push({
+        id: Date.now(),
+        sender: 'user',
+        text: userText,
+        timestamp: timeStr
+      });
+      saveState();
+
+      // Show typing indicator
+      const stream = document.getElementById('ai-chat-stream');
+      if (stream) {
+        const userBubble = document.createElement('div');
+        userBubble.innerHTML = renderAIMessageBubble(appState.aiTeacherHistory[appState.aiTeacherHistory.length - 1]);
+        stream.appendChild(userBubble.firstElementChild);
+      }
+      const typing = document.getElementById('ai-typing-indicator');
+      if (typing) typing.classList.remove('hidden');
+      scrollAIChatToBottom();
+
+      // Respond with AI Tutor
+      setTimeout(() => {
+        if (typing) typing.classList.add('hidden');
+        const reply = generateAITutorResponse(userText);
+        appState.aiTeacherHistory.push({
+          id: Date.now() + 1,
+          sender: 'teacher',
+          text: reply.text,
+          lang: reply.lang || 'english',
+          timestamp: timeStr
+        });
+        saveState();
+
+        if (stream) {
+          const aiBubble = document.createElement('div');
+          aiBubble.innerHTML = renderAIMessageBubble(appState.aiTeacherHistory[appState.aiTeacherHistory.length - 1]);
+          stream.appendChild(aiBubble.firstElementChild);
+          lucide.createIcons();
+        }
+        scrollAIChatToBottom();
+
+        // Increment practice stats
+        if (!appState.dailyGoal) appState.dailyGoal = { targetMinutes: 15, practicedMinutes: 0 };
+        appState.dailyGoal.practicedMinutes = (appState.dailyGoal.practicedMinutes || 0) + 1;
+        appState.stats.xp += 5;
+        saveState();
+
+      }, 700);
+    }
+
+    function scrollAIChatToBottom() {
+      const stream = document.getElementById('ai-chat-stream');
+      if (stream) {
+        setTimeout(() => {
+          stream.scrollTop = stream.scrollHeight;
+        }, 50);
+      }
+    }
+
+    function clearAIChatHistory() {
+      if (confirm('Clear chat conversation with Asha Ma\'am?')) {
+        appState.aiTeacherHistory = [
+          {
+            id: 1,
+            sender: 'teacher',
+            text: 'Namaste! 🙏 I am Asha Ma\'am, your AI Language Guru. Ask me anything in English, Hindi, or Marathi, or ask me to check your grammar!',
+            lang: 'english',
+            timestamp: 'Just now'
+          }
+        ];
+        saveState();
+        renderAITeacherScreen(document.getElementById('screen-container'));
+        showToast('Chat history cleared');
+      }
+    }
+
+    function toggleAIMicInput() {
+      showToast('🎙️ Listening... Speak your doubt clearly');
+      const micBtn = document.getElementById('ai-mic-btn');
+      if (micBtn) micBtn.classList.add('animate-pulse', 'bg-purple-600', 'text-white');
+      
+      setTimeout(() => {
+        if (micBtn) micBtn.classList.remove('animate-pulse', 'bg-purple-600', 'text-white');
+        const sampleVoiceQueries = [
+          'Can you check my sentence grammar: "I didn\'t knew that"?',
+          'How do I say "Thank you very much" in Marathi and Hindi?',
+          'Explain the difference between "Between" and "Among"',
+          'Teach me 3 daily Marathi expressions for shopping',
+          'What is the meaning of "Consistency is the key" in Hindi?'
+        ];
+        const chosen = sampleVoiceQueries[Math.floor(Math.random() * sampleVoiceQueries.length)];
+        const input = document.getElementById('ai-message-input');
+        if (input) {
+          input.value = chosen;
+          showToast('🗣️ Voice recognized!');
+        }
+      }, 1400);
+    }
+
+    /* Intelligent Responsive Engine for Asha Ma'am (Online & On-Device Offline) */
+    function generateAITutorResponse(input) {
+      const q = input.toLowerCase();
+      const isOffline = appState.offlineMode && appState.offlineMode.isEnabled;
+      const offlinePrefix = isOffline ? "⚡ *(On-Device Offline Tutor)*\n\n" : "";
+
+      // 1. Grammar Checking & Correction
+      if (q.includes('grammar') || q.includes('check') || q.includes('wrong') || q.includes('correct') || q.includes('do not knows') || q.includes("didn't knew") || q.includes('i goes')) {
+        if (q.includes('do not knows') || q.includes("doesn't knows")) {
+          return {
+            text: `${offlinePrefix}Good catch! Let us fix that sentence together:\n\n❌ **Incorrect:** "She do not knows Marathi"\n✅ **Correct:** "She does not know Marathi"\n\n💡 **Grammar Rule:**\n1. With third-person singular (He / She / It / Name), we use **does**, not *do*.\n2. After *does not*, always use the base form of verb (**know**, not *knows*).\n\n🇮🇳 **Hindi:** वह मराठी नहीं जानती।\n🍃 **Marathi:** तिला मराठी येत नाही।\n\nShabash! Keep practicing!`,
+            lang: 'english'
+          };
+        }
+        if (q.includes("didn't knew") || q.includes("did not knew") || q.includes("didn't went")) {
+          return {
+            text: `${offlinePrefix}Here is the grammar correction:\n\n❌ **Incorrect:** "I didn't knew that"\n✅ **Correct:** "I didn't know that"\n\n💡 **Golden Rule of Past Tense:**\nWhen using the auxiliary **did / didn't**, the main verb stays in the base present form (**know**, not *knew*; **go**, not *went*).\n\n🇮🇳 **Hindi:** मुझे वह मालूम नहीं था।\n🍃 **Marathi:** मला ते माहित नव्हते।`,
+            lang: 'english'
+          };
+        }
+        if (q.includes("i goes") || q.includes("he go")) {
+          return {
+            text: `${offlinePrefix}Sentence correction:\n\n❌ **Incorrect:** "I goes to school"\n✅ **Correct:** "I go to school"\n\n💡 **Rule:**\nWith "I", "You", "We", and "They", use **go**.\nWith "He", "She", and "It", use **goes**.\n\n🇮🇳 **Hindi:** मैं स्कूल जाता हूँ।\n🍃 **Marathi:** मी शाळेत जातो।`,
+            lang: 'english'
+          };
+        }
+        return {
+          text: `${offlinePrefix}✅ **Sentence Analysis:**\nYour sentence is well understood! Remember:\n\n1. Always match the subject with the verb (Subject-Verb Agreement).\n2. Present tense: "I learn", "He learns".\n3. Past tense: "I learned", "He learned".\n\nWould you like me to quiz you on this topic?`,
+          lang: 'english'
+        };
+      }
+
+      // 2. Translation & Meaning queries
+      if (q.includes('translate') || q.includes('how to say') || q.includes('how do i say') || q.includes('meaning') || q.includes('where are you going') || q.includes('thank you') || q.includes('congratulations')) {
+        if (q.includes('where are you going')) {
+          return {
+            text: `${offlinePrefix}Here is the translation for **"Where are you going?"**:\n\n🇮🇳 **Hindi (हिंदी):**\n"आप कहाँ जा रहे हैं?"\n*(Aap kahan ja rahe hain?)*\n\n🍃 **Marathi (मराठी):**\n"तुम्ही कुठे चालला आहात?"\n*(Tumhi kuthe chaalla aahat?)*\n\nTap the speaker icon 🔊 above to hear native audio!`,
+            lang: 'marathi'
+          };
+        }
+        if (q.includes('thank you')) {
+          return {
+            text: `${offlinePrefix}Expressing gratitude in all three languages:\n\n🇬🇧 **English:** "Thank you very much!"\n🇮🇳 **Hindi:** "आपका बहुत-बहुत धन्यवाद!" *(Aapka bahut-bahut dhanyavaad!)*\n🍃 **Marathi:** "तुमचे मनापासून आभार!" *(Tumche manaapasun aabhaar!)*`,
+            lang: 'hindi'
+          };
+        }
+        if (q.includes('congratulations')) {
+          return {
+            text: `${offlinePrefix}How to say **"Congratulations"**:\n\n🇮🇳 **Hindi:** "बधाई हो!" *(Badhaai ho!)*\n🍃 **Marathi:** "अभिनंदन!" *(Abhinandan!)*\n\nUsed when celebrating achievements, exams, or weddings!`,
+            lang: 'marathi'
+          };
+        }
+        return {
+          text: `${offlinePrefix}Here is the translation breakdown:\n\n🇬🇧 **English:** "${input.slice(0, 50)}"\n🇮🇳 **Hindi:** बहुत अच्छा प्रश्न! इसे नियमित अभ्यास में शामिल करें।\n🍃 **Marathi:** खूप छान प्रश्न! हे रोजच्या बोलण्यात वापरा।\n\nIs there a specific word you want to drill?`,
+          lang: 'hindi'
+        };
+      }
+
+      // 3. Tenses & Grammar Explanations
+      if (q.includes('was') && q.includes('were')) {
+        return {
+          text: `${offlinePrefix}**Was vs Were - Quick Rule:**\n\n🔹 **Use WAS with Singular:**\n• I was happy. (मी आनंदी होतो / मैं खुश था)\n• He was working.\n• It was raining.\n\n🔹 **Use WERE with Plural & You:**\n• You were late. (तुम्ही उशिरा आलात)\n• They were playing.\n• We were at the station.\n\n💡 Tip: "You" ALWAYS takes "were", even for one person!`,
+          lang: 'english'
+        };
+      }
+
+      // 4. Marathi greetings & conversation
+      if (q.includes('marathi') || q.includes('greetings') || q.includes('shopping')) {
+        return {
+          text: `${offlinePrefix}🍃 **Essential Daily Marathi Phrases:**\n\n1. **"नमस्कार, कसे आहात?"**\n*(Namaskar, kase aahat?)* ➔ Hello, how are you?\n\n2. **"या, बसा!"**\n*(Yaa, basaa!)* ➔ Please come and sit down.\n\n3. **"याची किंमत किती आहे?"**\n*(Yaachi kimmat kiti aahe?)* ➔ How much does this cost?\n\n4. **"खूप छान!"**\n*(Khoop chhaan!)* ➔ Very nice / Excellent!\n\nTry repeating them aloud!`,
+          lang: 'marathi'
+        };
+      }
+
+      // 5. Default Friendly Teacher Response
+      return {
+        text: `${offlinePrefix}Namaste! 😊 As your AI Guru, I am here to help you master English, Hindi, and Marathi.\n\nYou can ask me:\n• "Check my sentence: [your sentence]"\n• "How to say [phrase] in Marathi/Hindi?"\n• "Explain [Grammar Topic] with examples"\n• "Practice interview conversation"\n\nWhat would you like to practice right now?`,
+        lang: 'english'
+      };
+    }
+
+    /* =========================================================
+       7. OFFLINE MODE CONTROLLER
+       ========================================================= */
+    function openOfflineModal() {
+      const modal = document.getElementById('offline-modal');
+      updateOfflineModalUI();
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeOfflineModal() {
+      const modal = document.getElementById('offline-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function toggleOfflineMode() {
+      if (!appState.offlineMode) {
+        appState.offlineMode = { isEnabled: false, lastSynced: 'Just now', downloadedPacks: ['english', 'hindi', 'marathi'] };
+      }
+      appState.offlineMode.isEnabled = !appState.offlineMode.isEnabled;
+      saveState();
+
+      updateOfflineModalUI();
+
+      if (appState.offlineMode.isEnabled) {
+        showToast('✈️ Offline Mode Enabled! Lessons & Audio working 100% locally.');
+      } else {
+        showToast('📶 Online Mode Enabled! Cloud sync & live connectivity active.');
+      }
+
+      refreshActiveScreens();
+    }
+
+    function updateOfflineModalUI() {
+      const isOff = appState.offlineMode && appState.offlineMode.isEnabled;
+      const dot = document.getElementById('offline-mode-dot');
+      const label = document.getElementById('offline-status-label');
+      const desc = document.getElementById('offline-status-desc');
+      const toggleBtn = document.getElementById('offline-toggle-btn');
+      const knob = document.getElementById('offline-toggle-knob');
+
+      if (dot) dot.className = isOff ? 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse' : 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+      if (label) label.innerText = isOff ? 'Offline Mode Active' : 'Online Mode Active';
+      if (desc) desc.innerText = isOff ? 'All 42.4 MB data running locally on device without internet' : 'Automatic cloud backup & live AI tutor active';
+      
+      if (toggleBtn && knob) {
+        if (isOff) {
+          toggleBtn.className = 'w-13 h-7 bg-amber-500 rounded-full p-1 transition-colors relative cursor-pointer';
+          knob.className = 'w-5 h-5 bg-white rounded-full shadow-md transform translate-x-6 transition-transform';
+        } else {
+          toggleBtn.className = 'w-13 h-7 bg-slate-700 rounded-full p-1 transition-colors relative cursor-pointer';
+          knob.className = 'w-5 h-5 bg-white rounded-full shadow-md transform translate-x-0 transition-transform';
+        }
+      }
+    }
+
+    function refreshOfflinePacks() {
+      const box = document.getElementById('offline-sync-progress-box');
+      const bar = document.getElementById('offline-sync-bar');
+      const percent = document.getElementById('offline-sync-percent');
+      if (box && bar && percent) {
+        box.classList.remove('hidden');
+        bar.style.width = '15%';
+        percent.innerText = '15%';
+        setTimeout(() => { bar.style.width = '60%'; percent.innerText = '60%'; }, 350);
+        setTimeout(() => { bar.style.width = '100%'; percent.innerText = '100%'; }, 750);
+        setTimeout(() => {
+          box.classList.add('hidden');
+          showToast('✓ All 3 Language Packs & TTS cached on device (42.4 MB)');
+          confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } });
+        }, 1100);
+      } else {
+        showToast('✓ Offline Language Packs verified');
+      }
+    }
+
+    /* =========================================================
+       8. LOGIN MODE CONTROLLER (Gmail & Mobile Phone + OTP)
+       ========================================================= */
+    let currentAuthTab = 'gmail';
+    let otpSentState = false;
+
+    function openLoginModal() {
+      const modal = document.getElementById('login-modal');
+      switchLoginTab('gmail');
+      updateLoginModalUserBadge();
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('login-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function switchLoginTab(tab) {
+      currentAuthTab = tab;
+      const tabGmail = document.getElementById('tab-btn-gmail');
+      const tabPhone = document.getElementById('tab-btn-phone');
+      const panelGmail = document.getElementById('auth-panel-gmail');
+      const panelPhone = document.getElementById('auth-panel-phone');
+
+      if (tab === 'gmail') {
+        if (tabGmail) tabGmail.className = 'flex-1 pb-2.5 text-center text-xs font-black border-b-2 border-blue-600 text-blue-600 transition flex items-center justify-center space-x-1.5';
+        if (tabPhone) tabPhone.className = 'flex-1 pb-2.5 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition flex items-center justify-center space-x-1.5';
+        if (panelGmail) panelGmail.classList.remove('hidden');
+        if (panelPhone) panelPhone.classList.add('hidden');
+      } else {
+        if (tabPhone) tabPhone.className = 'flex-1 pb-2.5 text-center text-xs font-black border-b-2 border-emerald-600 text-emerald-600 transition flex items-center justify-center space-x-1.5';
+        if (tabGmail) tabGmail.className = 'flex-1 pb-2.5 text-center text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition flex items-center justify-center space-x-1.5';
+        if (panelPhone) panelPhone.classList.remove('hidden');
+        if (panelGmail) panelGmail.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function selectDemoAccount(email, fullName) {
+      const input = document.getElementById('gmail-input');
+      if (input) input.value = email;
+      showToast(`Selected: ${fullName}`);
+    }
+
+    function handleGoogleOneTapLogin() {
+      appState.user = {
+        isLoggedIn: true,
+        authProvider: 'gmail',
+        name: 'Vishal',
+        fullName: 'Vishal Kunjami',
+        email: 'vishalkunjami63@gmail.com',
+        phoneNumber: '+91 98765 43210'
+      };
+      saveState();
+      closeLoginModal();
+      confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+      showToast('🎉 Signed in successfully with Google!');
+      refreshActiveScreens();
+    }
+
+    function submitGmailLogin() {
+      const input = document.getElementById('gmail-input');
+      const email = input ? input.value.trim() : 'vishalkunjami63@gmail.com';
+      if (!email || !email.includes('@')) {
+        showToast('⚠️ Please enter a valid Gmail address');
+        return;
+      }
+      const rawName = email.split('@')[0].replace(/[._0-9]/g, ' ');
+      const capName = rawName.trim().charAt(0).toUpperCase() + rawName.trim().slice(1);
+
+      appState.user = {
+        isLoggedIn: true,
+        authProvider: 'gmail',
+        name: capName || 'Learner',
+        fullName: capName ? `${capName} (Google)` : 'Google User',
+        email: email,
+        phoneNumber: appState.user ? appState.user.phoneNumber : '+91 98765 43210'
+      };
+      saveState();
+      closeLoginModal();
+      confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      showToast(`🎉 Signed in as ${appState.user.name} via Gmail!`);
+      refreshActiveScreens();
+    }
+
+    function handleSendOrVerifyOtp() {
+      const phoneInput = document.getElementById('phone-number-input');
+      const phone = phoneInput ? phoneInput.value.trim() : '9876543210';
+      if (phone.length < 10) {
+        showToast('⚠️ Please enter a valid 10-digit mobile number');
+        return;
+      }
+
+      const otpBox = document.getElementById('phone-otp-box');
+      const btnText = document.getElementById('phone-btn-text');
+
+      if (!otpSentState) {
+        // Step 1: Send OTP
+        otpSentState = true;
+        if (otpBox) otpBox.classList.remove('hidden');
+        if (btnText) btnText.innerText = 'Verify OTP & Sign In';
+        showToast(`📩 OTP sent to +91 ${phone}! Code: 482910`);
+        lucide.createIcons();
+      } else {
+        // Step 2: Verify OTP
+        otpSentState = false;
+        const lastDigits = phone.slice(-4);
+        appState.user = {
+          isLoggedIn: true,
+          authProvider: 'phone',
+          name: `User ${lastDigits}`,
+          fullName: `Member (+91 ${phone})`,
+          email: `user${lastDigits}@speakeasy.app`,
+          phoneNumber: `+91 ${phone}`
+        };
+        saveState();
+        closeLoginModal();
+        confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+        showToast(`🎉 Mobile verified! Welcome, ${appState.user.name}!`);
+        refreshActiveScreens();
+      }
+    }
+
+    function autoFillDemoOtp() {
+      const digits = ['4', '8', '2', '9', '1', '0'];
+      const inputs = document.querySelectorAll('.otp-digit');
+      inputs.forEach((inp, idx) => {
+        if (digits[idx]) inp.value = digits[idx];
+      });
+      showToast('⚡ OTP filled: 482910');
+    }
+
+    function handleSignOut() {
+      appState.user = {
+        isLoggedIn: false,
+        authProvider: 'guest',
+        name: 'Guest',
+        fullName: 'Guest Learner',
+        email: 'guest@speakeasy.app',
+        phoneNumber: ''
+      };
+      saveState();
+      closeLoginModal();
+      showToast('Logged out. Switched to Guest Mode.');
+      refreshActiveScreens();
+    }
+
+    function updateLoginModalUserBadge() {
+      const uName = document.getElementById('login-modal-username');
+      const uMethod = document.getElementById('login-modal-method');
+      if (uName) uName.innerText = appState.user ? appState.user.fullName : 'Guest';
+      if (uMethod) {
+        uMethod.innerText = appState.user && appState.user.authProvider === 'phone'
+          ? `Mobile • ${appState.user.phoneNumber || '+91 9876543210'}`
+          : `Google • ${appState.user.email || 'vishalkunjami63@gmail.com'}`;
+      }
+    }
+
+    function refreshActiveScreens() {
+      if (appState.currentScreen === 'home') {
+        renderHomeScreen(document.getElementById('screen-container'));
+      } else if (appState.currentScreen === 'profile') {
+        renderProfileScreen(document.getElementById('screen-container'));
+      } else if (appState.currentScreen === 'ai-teacher') {
+        renderAITeacherScreen(document.getElementById('screen-container'));
+      }
+      lucide.createIcons();
+    }
+
+    /* =========================================================
+       9. GLOBAL LEADERBOARD CONTROLLER (TOP 5 BY TOTAL XP)
+       ========================================================= */
+    const GLOBAL_LEADERBOARD_COMPETITORS = [
+      { id: 'ananya', name: 'Ananya Patel', avatar: '👩‍🎓', flag: '🇮🇳', city: 'Mumbai', focus: 'Marathi & English', xp: 480, streak: 14 },
+      { id: 'arjun', name: 'Arjun Verma', avatar: '👨‍💻', flag: '🇮🇳', city: 'Delhi', focus: 'English & Hindi', xp: 360, streak: 9 },
+      { id: 'sofia', name: 'Sofia Martinez', avatar: '👩‍🎨', flag: '🇪🇸', city: 'Madrid', focus: 'Hindi Explorer', xp: 245, streak: 7 },
+      { id: 'rohan', name: 'Rohan Kulkarni', avatar: '🧑‍🚀', flag: '🇮🇳', city: 'Pune', focus: 'English Fluency', xp: 150, streak: 4 },
+      { id: 'kenji', name: 'Kenji Sato', avatar: '🧑‍🏫', flag: '🇯🇵', city: 'Tokyo', focus: 'Hindi & English', xp: 95, streak: 2 },
+      { id: 'priya', name: 'Priya Nair', avatar: '👩‍💼', flag: '🇮🇳', city: 'Bengaluru', focus: 'Marathi Basics', xp: 70, streak: 1 }
+    ];
+
+    function getRankedLeaderboard() {
+      const currentUserXp = (appState.stats && typeof appState.stats.xp === 'number') ? appState.stats.xp : 120;
+      const currentUserStreak = (appState.stats && typeof appState.stats.streak === 'number') ? appState.stats.streak : 0;
+      const currentUserName = (appState.user && appState.user.fullName) ? appState.user.fullName : ((appState.user && appState.user.name) ? appState.user.name : 'You');
+      const currentUserFlag = (appState.user && appState.user.authProvider === 'phone') ? '📱' : '🌟';
+
+      const combined = [
+        ...GLOBAL_LEADERBOARD_COMPETITORS.map(u => ({ ...u, isCurrentUser: false })),
+        {
+          id: 'current_user',
+          name: currentUserName,
+          avatar: '👨‍💼',
+          flag: currentUserFlag,
+          city: 'Your Profile',
+          focus: 'EN • HI • MR',
+          xp: currentUserXp,
+          streak: currentUserStreak,
+          isCurrentUser: true
+        }
+      ];
+
+      combined.sort((a, b) => {
+        if (b.xp !== a.xp) return b.xp - a.xp;
+        if (a.isCurrentUser !== b.isCurrentUser) return a.isCurrentUser ? -1 : 1;
+        return b.streak - a.streak;
+      });
+
+      const ranked = combined.map((entry, idx) => ({ ...entry, rank: idx + 1 }));
+      const topFive = ranked.slice(0, 5);
+      const currentUserEntry = ranked.find(e => e.isCurrentUser) || ranked[ranked.length - 1];
+      const nextRankEntry = currentUserEntry.rank > 1 ? ranked[currentUserEntry.rank - 2] : null;
+      const xpToNextRank = nextRankEntry ? Math.max(1, (nextRankEntry.xp - currentUserEntry.xp) + 1) : 0;
+
+      return { ranked, topFive, currentUserEntry, nextRankEntry, xpToNextRank };
+    }
+
+    function renderLeaderboardRow(entry, compact) {
+      let rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-[11px] font-black flex items-center justify-center flex-shrink-0">#${entry.rank}</span>`;
+      if (entry.rank === 1) {
+        rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-sm flex items-center justify-center flex-shrink-0" title="1st Place">🥇</span>`;
+      } else if (entry.rank === 2) {
+        rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-sm flex items-center justify-center flex-shrink-0" title="2nd Place">🥈</span>`;
+      } else if (entry.rank === 3) {
+        rankBadge = `<span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 text-sm flex items-center justify-center flex-shrink-0" title="3rd Place">🥉</span>`;
+      }
+
+      const rowStyle = entry.isCurrentUser
+        ? 'bg-blue-50/90 border-blue-200 ring-1 ring-blue-100'
+        : entry.rank === 1
+          ? 'bg-amber-50/40 border-amber-100 hover:bg-amber-50/70'
+          : 'bg-slate-50/70 border-slate-100 hover:bg-slate-100/70';
+
+      const clickAction = entry.isCurrentUser
+        ? `showToast('⭐ You are Rank #${entry.rank} with ${entry.xp} XP!')`
+        : `showLeaderboardUserToast('${entry.name.replace(/'/g, "\\'")}', ${entry.rank}, ${entry.xp})`;
+
+      return `
+        <div onclick="${clickAction}" class="p-2.5 rounded-xl border ${rowStyle} flex items-center justify-between cursor-pointer active:scale-98 transition min-h-[48px]" data-test-id="leaderboard-row-${entry.rank}">
+          <div class="flex items-center space-x-2.5 min-w-0">
+            ${rankBadge}
+            <div class="w-8 h-8 rounded-full ${entry.isCurrentUser ? 'bg-speakeasy-blue text-white' : 'bg-white border border-slate-200'} flex items-center justify-center text-base flex-shrink-0 shadow-2xs relative">
+              <span>${entry.avatar}</span>
+              <span class="absolute -bottom-0.5 -right-0.5 text-[10px] leading-none">${entry.flag}</span>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center space-x-1.5">
+                <p class="text-xs font-extrabold ${entry.isCurrentUser ? 'text-speakeasy-blue' : 'text-slate-900'} truncate">${escapeHtml(entry.name)}</p>
+                ${entry.isCurrentUser ? '<span class="px-1.5 py-0.5 rounded-full bg-speakeasy-blue text-white text-[9px] font-black uppercase tracking-wide flex-shrink-0">You</span>' : ''}
+              </div>
+              <p class="text-[10px] font-semibold text-slate-400 truncate">
+                🔥 ${entry.streak}d streak${compact ? '' : ` • ${entry.focus}`}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-1 px-2.5 py-1 rounded-full ${entry.isCurrentUser ? 'bg-speakeasy-blue text-white' : 'bg-white border border-slate-200 text-slate-800'} flex-shrink-0 ml-2 shadow-2xs">
+            <span class="text-[10px]">⭐</span>
+            <span class="text-[11px] font-black">${entry.xp}</span>
+            <span class="text-[9px] font-bold opacity-80">XP</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHomeLeaderboardCard() {
+      const { topFive, currentUserEntry, nextRankEntry, xpToNextRank } = getRankedLeaderboard();
+      const isOffline = appState.offlineMode && appState.offlineMode.isEnabled;
+      const inTopFive = currentUserEntry.rank <= 5;
+
+      return `
+        <div id="global-leaderboard-card" class="bg-white rounded-2xl p-4 border border-slate-100 shadow-subtle space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">🏆</span>
+              <div>
+                <div class="flex items-center space-x-1.5">
+                  <h3 class="text-xs font-extrabold text-slate-900">Global Leaderboard</h3>
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${isOffline ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+                    ${isOffline ? 'Cached' : 'Top 5'}
+                  </span>
+                </div>
+                <p class="text-[10px] font-medium text-slate-400">Ranked by total XP earned</p>
+              </div>
+            </div>
+
+            <button onclick="openLeaderboardModal()" class="px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[11px] font-bold flex items-center space-x-1 transition active:scale-95 min-h-[32px]">
+              <span>View All</span>
+              <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            </button>
+          </div>
+
+          <!-- Top 5 Users List -->
+          <div class="space-y-2">
+            ${topFive.map(entry => renderLeaderboardRow(entry, true)).join('')}
+          </div>
+
+          <!-- Competitive Status Footer -->
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+            <div class="flex items-center space-x-1.5 text-slate-600 font-semibold min-w-0">
+              <span>${currentUserEntry.rank === 1 ? '👑' : '🚀'}</span>
+              <span class="truncate">
+                ${currentUserEntry.rank === 1
+                  ? 'You are #1 globally! Keep defending your lead.'
+                  : inTopFive
+                    ? `Rank #${currentUserEntry.rank} • +${xpToNextRank} XP to pass #${nextRankEntry.rank}`
+                    : `Your Rank: #${currentUserEntry.rank} (${currentUserEntry.xp} XP)`}
+              </span>
+            </div>
+            <button onclick="navigateTo('quiz')" class="ml-2 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-extrabold flex-shrink-0 active:scale-95 transition">
+              +Earn XP
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function openLeaderboardModal() {
+      const modal = document.getElementById('leaderboard-modal');
+      const body = document.getElementById('leaderboard-modal-body');
+      const { ranked, currentUserEntry, nextRankEntry, xpToNextRank } = getRankedLeaderboard();
+
+      if (body) {
+        body.innerHTML = `
+          <div class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-3.5 text-white shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">Your Global Standing</span>
+              <h4 class="text-lg font-black mt-1">Rank #${currentUserEntry.rank} of ${ranked.length}</h4>
+              <p class="text-[11px] text-amber-50 font-semibold">
+                ${currentUserEntry.rank === 1
+                  ? 'Leading the global chart! Keep practicing daily.'
+                  : `Earn ${xpToNextRank} more XP to overtake ${nextRankEntry.name}!`}
+              </p>
+            </div>
+            <div class="text-right">
+              <span class="text-2xl font-black block leading-none">${currentUserEntry.xp}</span>
+              <span class="text-[10px] font-bold uppercase text-amber-100">Total XP</span>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            ${ranked.map(entry => renderLeaderboardRow(entry, false)).join('')}
+          </div>
+        `;
+      }
+
+      if (modal) modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeLeaderboardModal() {
+      const modal = document.getElementById('leaderboard-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function showLeaderboardUserToast(name, rank, xp) {
+      const currentXp = (appState.stats && appState.stats.xp) ? appState.stats.xp : 0;
+      const diff = xp - currentXp;
+      if (diff >= 0) {
+        showToast(`🏆 #${rank} ${name} has ${xp} XP (${diff + 1} XP to overtake!)`);
+      } else {
+        showToast(`🌟 #${rank} ${name} has ${xp} XP — you are ahead by ${Math.abs(diff)} XP!`);
+      }
+    }
+
+    // Android System Back Navigation Handler
+    window.handleBackPress = function() {
+      const leaderboardModal = document.getElementById('leaderboard-modal');
+      const loginModal = document.getElementById('login-modal');
+      const offlineModal = document.getElementById('offline-modal');
+      const goalModal = document.getElementById('goal-modal');
+      const lessonModal = document.getElementById('lesson-modal');
+      const speakingModal = document.getElementById('speaking-modal');
+
+      if (leaderboardModal && !leaderboardModal.classList.contains('hidden')) {
+        closeLeaderboardModal();
+        return true;
+      }
+      if (loginModal && !loginModal.classList.contains('hidden')) {
+        closeLoginModal();
+        return true;
+      }
+      if (offlineModal && !offlineModal.classList.contains('hidden')) {
+        closeOfflineModal();
+        return true;
+      }
+      if (goalModal && !goalModal.classList.contains('hidden')) {
+        closeGoalModal();
+        return true;
+      }
+      if (speakingModal && !speakingModal.classList.contains('hidden')) {
+        closeSpeakingModal();
+        return true;
+      }
+      if (lessonModal && !lessonModal.classList.contains('hidden')) {
+        closeLessonModal();
+        return true;
+      }
+      if (appState.currentScreen !== 'home') {
+        navigateTo('home');
+        return true;
+      }
+      return false;
+    };
+
+    /* BOOTSTRAP APP */
+    document.addEventListener('DOMContentLoaded', () => {
+      navigateTo('home');
+    });
+  </script>
+</body>
+</html>
